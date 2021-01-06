@@ -20,13 +20,12 @@ public class BankServicesMain {
 			
 		}while(choice!=0);*/
 		BankServices bs =new BankServiceImpl();
-		
 		try {
 			List<Customers> cList=bs.getCustomerInfo();
-			if(cList!=null && cList.size()!=0) {
-				System.out.println("\n\nFound "+cList.size()+" no of players in DB.... Printing them all");
+			if(cList!=null && cList.size()>0) {
+				System.out.println("\nThere are "+cList.size()+" num of customers in Database:");
 				for(Customers c:cList) {
-					System.out.println(c);
+					System.out.println(c.toString());
 				}
 			}
 		} catch (BusinessException e) {

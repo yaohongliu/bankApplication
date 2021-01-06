@@ -4,7 +4,7 @@ package com.bank.model;
 import java.util.Date;
 
 public class Customers {
-	private int id, age;
+	private int id;
 	private long contact;
 	private String name, gender, address, city, state, email;
 	private Date dob;
@@ -13,11 +13,10 @@ public class Customers {
 		//constructor
 	}
 
-	public Customers(int id, int age, long contact, String name, String gender, String address, String city,
+	public Customers(int id, long contact, String name, String gender, String address, String city,
 			String state, String email, Date dob) {
 		super();
 		this.id = id;
-		this.age = age;
 		this.contact = contact;
 		this.name = name;
 		this.gender = gender;
@@ -34,14 +33,6 @@ public class Customers {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public int getAge() {
-		return age;
-	}
-
-	public void setAge(int age) {
-		this.age = age;
 	}
 
 	public long getContact() {
@@ -107,3 +98,13 @@ public class Customers {
 	public void setDob(Date dob) {
 		this.dob = dob;
 	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return "Customer [ ID = " +id+", Name = "+name+", Gender = "+gender+", dob = "+dob+", Contact = "+contact+", Email = "+email
+				+", Address= "+address+", "+ city +", "+state+" ]";
+	}
+	
+	
+}
