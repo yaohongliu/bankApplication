@@ -102,7 +102,7 @@ public class Customers {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "Customer [ ID = " +id+", Name = "+name+", Gender = "+gender+", dob = "+dob+", Contact = "+contact+", Email = "+email
+		return "Customer [ID = " +id+", Name = "+name+", Gender = "+gender+", dob = "+dob+", Contact = "+contact+", Email = "+email
 				+", Address= "+address+", "+ city +", "+state+" ]";
 	}
 	
