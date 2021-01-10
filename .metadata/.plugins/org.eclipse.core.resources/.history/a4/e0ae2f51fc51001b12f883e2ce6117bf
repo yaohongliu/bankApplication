@@ -1,0 +1,53 @@
+package com.bank.main;
+
+import java.util.List;
+import java.util.Scanner;
+
+import com.bank.exception.BusinessException;
+import com.bank.model.Customers;
+import com.bank.service.BankServices;
+import com.bank.service.impl.BankServiceImpl;
+
+public class BankServicesMain {
+
+	public static void main(String[] args) {
+	
+		Scanner sc = new Scanner(System.in);
+		
+		System.out.println("Welcome to ABC Bank Service Application");
+		System.out.println("=========================================");
+		System.out.println("Enter 1 for Customer, Enter 2 for Employee");
+		int s = sc.nextInt();
+		if(s == 1)
+		{
+			
+		}
+		if(s == 2) 
+		{
+			
+		}
+		int choice = 0;
+		do {
+			System.out.println("Enter 1 for Customer, Enter 2 for Employee");
+			System.out.println();
+			System.out.println();
+			
+			
+		}while(choice!=0);
+		BankServices bs =new BankServiceImpl();
+		try {
+			List<Customers> cList=bs.getCustomerInfo();
+			if(cList!=null && cList.size()>0) {
+				System.out.println("\nThere are "+cList.size()+" num of customers in Database:");
+				for(Customers c:cList) {
+					System.out.println(c.toString());
+				}
+			}
+		} catch (BusinessException e) {
+			System.out.println(e.getMessage());
+		}
+		
+		
+	}
+
+}

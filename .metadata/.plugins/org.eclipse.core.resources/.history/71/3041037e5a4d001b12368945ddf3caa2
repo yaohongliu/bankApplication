@@ -1,0 +1,16 @@
+package com.bank.service.impl;
+
+import com.bank.exception.BusinessException;
+import com.bank.model.Customers;
+import com.bank.service.BankServices;
+
+public class BankServiceImpl implements BankServices{
+
+	@Override
+	public List<Customers> getCustomerInfo() throws BusinessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+}
