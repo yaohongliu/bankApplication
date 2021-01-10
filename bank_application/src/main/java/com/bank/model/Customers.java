@@ -6,26 +6,27 @@ import java.util.Date;
 public class Customers {
 	private int id;
 	private long contact;
-	private String name, gender, address, city, state, email;
+	private String customer_name, address, customer_password, customer_login, email;
 	private Date dob;
 	
 	public Customers() {
 		//constructor
 	}
 
-	public Customers(int id, long contact, String name, String gender, String address, String city,
-			String state, String email, Date dob) {
+	public Customers(int id, long contact, String customer_name, String address, String customer_password, String customer_login,
+			String email, Date dob) {
 		super();
 		this.id = id;
 		this.contact = contact;
-		this.name = name;
-		this.gender = gender;
+		this.customer_name = customer_name;
 		this.address = address;
-		this.city = city;
-		this.state = state;
+		this.customer_password = customer_password;
+		this.customer_login = customer_login;
 		this.email = email;
 		this.dob = dob;
 	}
+
+	
 
 	public int getId() {
 		return id;
@@ -43,20 +44,12 @@ public class Customers {
 		this.contact = contact;
 	}
 
-	public String getName() {
-		return name;
+	public String getCustomer_name() {
+		return customer_name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getGender() {
-		return gender;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
+	public void setCustomer_name(String customer_name) {
+		this.customer_name= customer_name;
 	}
 
 	public String getAddress() {
@@ -67,20 +60,20 @@ public class Customers {
 		this.address = address;
 	}
 
-	public String getCity() {
-		return city;
+	public String getCustomer_password() {
+		return customer_password;
 	}
 
-	public void setCity(String city) {
-		this.city = city;
+	public void setCustomer_password(String customer_password) {
+		this.customer_password = customer_password;
 	}
 
-	public String getState() {
-		return state;
+	public String getCustomer_login() {
+		return customer_login;
 	}
 
-	public void setState(String state) {
-		this.state = state;
+	public void setCustomer_login(String customer_login) {
+		this.customer_login = customer_login;
 	}
 
 	public String getEmail() {
@@ -102,8 +95,8 @@ public class Customers {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "Customer [ID = " +id+", Name = "+name+", Gender = "+gender+", dob = "+dob+", Contact = "+contact+", Email = "+email
-				+", Address= "+address+", "+ city +", "+state+" ]";
+		return "Customer [ID = " +id+", Name = "+customer_name+", dob = "+dob+", Contact = "+contact+", Email = "+email
+				+", Address= "+address+ ", customer_login = "+customer_login +", customer_password = "+customer_password+" ]";
 	}
 	
 	

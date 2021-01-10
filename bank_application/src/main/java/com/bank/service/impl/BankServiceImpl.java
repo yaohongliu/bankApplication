@@ -9,7 +9,10 @@ import java.util.List;
 
 import com.bank.dao.dbutil.PostgresqlConnection;
 import com.bank.exception.BusinessException;
+import com.bank.model.Account;
 import com.bank.model.Customers;
+import com.bank.model.Employee;
+import com.bank.model.Transaction;
 import com.bank.service.BankServices;
 import com.bank.service.dao.BankServiceDAO;
 import com.bank.service.dao.impl.BankServiceDAOImpl;
@@ -26,6 +29,24 @@ public class BankServiceImpl implements BankServices{
 		return allCustomerList;
 	
 	}
+
+	@Override
+	public int createAccout(Account account) throws BusinessException {
+		// TODO Auto-generated method stub
+		
+		return 0;
+	}
+
+	@Override
+	public List<Account> getAccountInfo() throws BusinessException {
+		List<Account> allAccountList = null;
+		allAccountList = bankServiceDAO.getAccountInfo();
+		
+		return allAccountList;
+		
+	}
+
+
 	
 	
 }
