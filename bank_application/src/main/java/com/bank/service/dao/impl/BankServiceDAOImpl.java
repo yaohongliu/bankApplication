@@ -21,11 +21,10 @@ import com.bank.service.dao.BankServiceDAO;
 public class BankServiceDAOImpl implements BankServiceDAO {
 
 	@Override
-	public List<CustomerAccount> getCustomerInfo() throws BusinessException {
+	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
 		List<CustomerAccount> customerList = new ArrayList<>();
 		try (Connection connection = PostgresqlConnection.getConnection()) {
-			String sql = "select customer_id,customer_name,customer_email,"
-					+ "customer_login,customer_password, dob from bankapplication.t_customers";
+			String sql = "select * from bankapplication.t_customers";
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
@@ -83,6 +82,28 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	}
 
 	@Override
+	public void deposit(double amount, String email) throws ClassNotFoundException, BusinessException, SQLException {
+		CustomerAccount account = getCustomerByEmail(email);
+		System.out.println("Customer id: " + account.getCustomer_id());
+		System.out.println("Status: " + account.getApproved());
+		if (account.getApproved().equals("t")) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try(Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, account.getBalance() + amount);
+				ps.setInt(2,  account.getCustomer_id());
+				ps.executeUpdate();
+				
+			} catch (Exception e) {
+				
+			}
+		} else {
+			throw new BusinessException("Your account is not yet approved!");
+		}
+	}
+	
+	
+	@Override
 	public List<CustomerAccount> getAccountInfo() throws BusinessException {
 		List<CustomerAccount> accountList = new ArrayList<>();
 		try (Connection connection = PostgresqlConnection.getConnection()) {
@@ -94,7 +115,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				account.setAccount_id(resultSet.getInt("account_id"));
 				account.setCustomer_id(resultSet.getInt("customer_id"));
 				account.setBalance(resultSet.getDouble("balance"));
-				account.setCreate_date(resultSet.getString("date_open"));
+				account.setCreate_date(resultSet.getString("create_date"));
 				accountList.add(account);
 			}
 			if (accountList.size() == 0) {
@@ -104,6 +125,33 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");
 		}
 		return accountList;
+	}
+
+	@Override
+	public CustomerAccount getCustomerByEmail(String email) throws BusinessException, ClassNotFoundException, SQLException {
+		CustomerAccount account = null;
+		
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_email = ?;";
+			
+			PreparedStatement ps = connection.prepareStatement(sql);	
+			ps.setString(1,  email);
+			
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccount_id(resultSet.getInt("account_id"));
+				account.setCustomer_id(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreate_date(resultSet.getString("create_date"));
+				account.setCustomer_name(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			}
+		}
+		
+		return account;
 	}
 
 }

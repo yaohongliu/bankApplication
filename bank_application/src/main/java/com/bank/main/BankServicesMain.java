@@ -1,5 +1,6 @@
 package com.bank.main;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +14,7 @@ import com.bank.service.dao.impl.BankServiceDAOImpl;
 
 public class BankServicesMain {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
 
 		Scanner sc = new Scanner(System.in);
 
@@ -49,48 +50,26 @@ public class BankServicesMain {
 
 				switch (Customer_choice) {
 				case 1:
-					System.out.println("Applying for account....");
-					CustomerAccount newCustomer = new CustomerAccount();
-					
-					// prompt for name
-					System.out.println("Enter your name: ");
-					newCustomer.setCustomer_name(sc.nextLine().toString());
-					
-					// prompt for email
-					System.out.println("Enter your email: ");
-					newCustomer.setCustomerEmail(sc.nextLine().toString());
-					
-					// user
-					System.out.println("Enter your username: ");
-					newCustomer.setCustomer_login(sc.nextLine().toString());
-					
-					//pwd
-					System.out.println("Enter your pwd: ");
-					newCustomer.setCustomer_password(sc.nextLine().toString());
-					
-					// prompt for starting bal
-					System.out.println("Enter your starting balance: ");
-					double bal = Double.parseDouble(sc.nextLine());
-					newCustomer.setBalance(bal);
-					
-					// prompt for dob
-					System.out.println("Enter your dob (YYYY-MM-DD): ");
-					newCustomer.setDob(sc.nextLine());
-					
-					BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
-					try {
-						bankDAO.createAccount(newCustomer);
-					} catch (BusinessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					createAccount(sc);
 					
 					break;
 				case 2:
 					System.out.println("Withdraw money....");
 					break;
 				case 3:
-					System.out.println("Deposite money....");
+					System.out.println("Deposit money....");
+					BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+					System.out.println("Enter amount: ");
+					double amount = Double.parseDouble(sc.nextLine());
+					System.out.println("Enter email: ");
+					String email = sc.nextLine();
+					
+					try {
+						bankDAO.deposit(amount, email);
+					} catch (BusinessException e) {
+						e.printStackTrace();
+					}
+					
 					break;
 				case 4:
 					System.out.println("View balance....");
@@ -151,4 +130,42 @@ public class BankServicesMain {
 		}
 
 	} // end main
+
+	private static void createAccount(Scanner sc) {
+		System.out.println("Applying for account....");
+		CustomerAccount newCustomer = new CustomerAccount();
+		
+		// prompt for name
+		System.out.println("Enter your name: ");
+		newCustomer.setCustomer_name(sc.nextLine().toString());
+		
+		// prompt for email
+		System.out.println("Enter your email: ");
+		newCustomer.setCustomerEmail(sc.nextLine().toString());
+		
+		// user
+		System.out.println("Enter your username: ");
+		newCustomer.setCustomer_login(sc.nextLine().toString());
+		
+		//pwd
+		System.out.println("Enter your pwd: ");
+		newCustomer.setCustomer_password(sc.nextLine().toString());
+		
+		// prompt for starting bal
+		System.out.println("Enter your starting balance: ");
+		double bal = Double.parseDouble(sc.nextLine());
+		newCustomer.setBalance(bal);
+		
+		// prompt for dob
+		System.out.println("Enter your dob (YYYY-MM-DD): ");
+		newCustomer.setDob(sc.nextLine());
+		
+		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+		try {
+			bankDAO.createAccount(newCustomer);
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 } // end class
