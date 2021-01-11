@@ -116,7 +116,7 @@ public class BankServicesMain {
 				case 4:
 					System.out.println("Register Customer Account....");
 					BankServiceDAO bsa =new BankServiceDAOImpl();
-					Account a = new Account(1000000008, 100008,new Date(0),500.00);
+					Account a = new Account(1000000008, 100008,2,500.00);
 					
 				
 					//List<Account> accountList = bsa.getAccountInfo();
