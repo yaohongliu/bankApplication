@@ -1,0 +1,8 @@
+package com.bank.model;
+
+public class Customer {
+	private int customerID;
+	private String customerName, customer_password, customer_login, customer_email, dob, approved, create_date;
+	private double balance;
+
+}

@@ -1,0 +1,17 @@
+package com.bank.service.dao;
+
+import java.util.List;
+
+import com.bank.exception.BusinessException;
+import com.bank.model.Customers;
+import com.bank.service.Account;
+import com.bank.service.Employee;
+import com.bank.service.Transactions;
+
+public interface BankServiceDAO {
+	
+	public List<Customers> getCustomerInfo() throws BusinessException;
+	public List<Employee> getEmployeeInfo() throws BusinessException;
+	public List<Transactions> getTransaferInfo() throws BusinessException;
+	public List<Account> getAccountInfo() throws BusinessException;
+}

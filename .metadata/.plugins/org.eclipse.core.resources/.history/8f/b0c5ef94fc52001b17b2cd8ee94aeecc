@@ -1,0 +1,55 @@
+package com.bank.service.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.bank.dao.dbutil.PostgresqlConnection;
+import com.bank.exception.BusinessException;
+import com.bank.model.Account;
+import com.bank.model.Customers;
+import com.bank.model.Employee;
+import com.bank.model.Transaction;
+import com.bank.service.BankServices;
+import com.bank.service.dao.BankServiceDAO;
+import com.bank.service.dao.impl.BankServiceDAOImpl;
+
+public class BankServiceImpl implements BankServices{
+
+	private BankServiceDAO bankServiceDAO = new BankServiceDAOImpl();
+	
+	@Override
+	public List<Customers> getCustomerInfo() throws BusinessException {
+		List<Customers> allCustomerList = null;
+		allCustomerList = bankServiceDAO.getCustomerInfo();
+		
+		return allCustomerList;
+	
+	}
+
+	@Override
+	public List<Employee> getEmployeeInfo() throws BusinessException {
+		List<Employee> allEmployeeList = null;
+		allEmployeeList = bankServiceDAO.getCustomerInfo();
+		
+		return allCustomerList;
+		
+	}
+
+	@Override
+	public List<Transaction> getTransaferInfo() throws BusinessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Account> getAccountInfo() throws BusinessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+}

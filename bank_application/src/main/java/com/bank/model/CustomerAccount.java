@@ -1,69 +1,57 @@
 package com.bank.model;
 
 
-import java.util.Date;
-
 public class CustomerAccount {
-	private int customer_id, account_id;
-	private long contact;
-	private String customer_name, customer_password, customer_login, customer_email, dob, approved, create_date;
+	private int customerId, accountId;
+	private String name, password, username, email, dob, approved, createDate;
 	private double balance;
-	
 
-	public int getCustomer_id() {
-		return customer_id;
+	public int getCustomerId() {
+		return customerId;
 	}
 
-	public void setCustomer_id(int id) {
-		this.customer_id = id;
-	}
-	
-	public int getAccount_id() {
-		return account_id;
+	public void setCustomerId(int id) {
+		this.customerId = id;
 	}
 
-	public void setAccount_id(int account_id) {
-		this.account_id = account_id;
+	public int getAccountId() {
+		return accountId;
 	}
 
-	public long getContact() {
-		return contact;
+	public void setAccountId(int accountId) {
+		this.accountId = accountId;
 	}
 
-	public void setContact(long contact) {
-		this.contact = contact;
+	public String getName() {
+		return name;
 	}
 
-	public String getCustomer_name() {
-		return customer_name;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public void setCustomer_name(String customer_name) {
-		this.customer_name = customer_name;
+	public String getPassword() {
+		return password;
 	}
 
-	public String getCustomer_password() {
-		return customer_password;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
-	public void setCustomer_password(String customer_password) {
-		this.customer_password = customer_password;
+	public String getUsername() {
+		return username;
 	}
 
-	public String getCustomer_login() {
-		return customer_login;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
-	public void setCustomer_login(String customer_login) {
-		this.customer_login = customer_login;
+	public String getEmail() {
+		return email;
 	}
 
-	public String getCustomerEmail() {
-		return customer_email;
-	}
-
-	public void setCustomerEmail(String email) {
-		this.customer_email = email;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getDob() {
@@ -73,15 +61,15 @@ public class CustomerAccount {
 	public void setDob(String dob) {
 		this.dob = dob;
 	}
-	
-	public double getBalance() { 
+
+	public double getBalance() {
 		return balance;
 	}
-	
+
 	public void setBalance(double bal) {
 		this.balance = bal;
 	}
-	
+
 	public String getApproved() {
 		return approved;
 	}
@@ -89,20 +77,25 @@ public class CustomerAccount {
 	public void setApproved(String approved) {
 		this.approved = approved;
 	}
-	
-	public String getCreate_date() {
-		return create_date;
+
+	public String getCreateDate() {
+		return createDate;
 	}
 
-	public void setCreate_date(String create_date) {
-		this.create_date = create_date;
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
 	}
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return "CustomerAcct [Name = "+customer_name+", dob = "+dob+", Contact = "+contact+", Email = "+ customer_email
-				+", customer_login = "+customer_login +", customer_password = "+customer_password+" ]";
+		return "Customer " + name + " has balance $" + balance + " in account";
 	}
 	
+	/**
+	 * Print detailed info about the customer
+	 * @return
+	 */
+	public String detailedString() {
+		return "";
+	}
 }

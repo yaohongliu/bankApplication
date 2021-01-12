@@ -1,0 +1,15 @@
+1610252668099	Copy compilation unit
+1610252674540	Delete element
+1610252723748	Delete element
+1610252960565	Delete element
+1610331841853	Delete element
+1610331845387	Delete element
+1610331860014	Delete element
+1610331895962	Delete element
+1610331910518	Rename compilation unit 'Customers.java'
+1610332265686	Encapsulate field 'approved'
+1610332730438	Encapsulate field 'account_id'
+1610332862710	Encapsulate field 'create_date'
+1610337185239	Extract method 'createAccount'
+1610422849629	Delete element
+1610423081525	Extract method 'displayMenu'

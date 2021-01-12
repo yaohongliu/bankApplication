@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
     <fullyQualifiedTypeName name="java.util.Scanner"/>
-    <fullyQualifiedTypeName name="java.util.Date"/>
     <fullyQualifiedTypeName name="com.bank.dao.dbutil.PostgresqlConnection"/>
     <fullyQualifiedTypeName name="java.sql.PreparedStatement"/>
     <fullyQualifiedTypeName name="com.bank.service.impl.BankServiceImpl"/>
-    <fullyQualifiedTypeName name="com.bank.service.BankServices"/>
     <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="com.bank.model.Customers"/>
     <fullyQualifiedTypeName name="com.bank.exception.BusinessException"/>
     <fullyQualifiedTypeName name="java.util.ArrayList"/>
-    <fullyQualifiedTypeName name="com.bank.service.dao.BankServiceDAO"/>
-    <fullyQualifiedTypeName name="com.bank.service.dao.impl.BankServiceDAOImpl"/>
     <fullyQualifiedTypeName name="java.sql.Connection"/>
     <fullyQualifiedTypeName name="java.sql.DriverManager"/>
     <fullyQualifiedTypeName name="java.sql.Statement"/>
     <fullyQualifiedTypeName name="java.sql.ResultSet"/>
     <fullyQualifiedTypeName name="java.sql.SQLException"/>
+    <fullyQualifiedTypeName name="com.bank.model.Employee"/>
+    <fullyQualifiedTypeName name="com.bank.model.Transaction"/>
+    <fullyQualifiedTypeName name="com.bank.service.BankServices"/>
+    <fullyQualifiedTypeName name="com.bank.service.impl.CustomerServiceImpl"/>
+    <fullyQualifiedTypeName name="com.bank.model.Account"/>
+    <fullyQualifiedTypeName name="com.bank.service.dao.BankServiceDAO"/>
+    <fullyQualifiedTypeName name="java.text.SimpleDateFormat"/>
+    <fullyQualifiedTypeName name="java.text.DateFormat"/>
+    <fullyQualifiedTypeName name="com.bank.service.dao.impl.BankServiceDAOImpl"/>
+    <fullyQualifiedTypeName name="com.bank.model.CustomerAccount"/>
+    <fullyQualifiedTypeName name="java.util.Date"/>
+    <fullyQualifiedTypeName name="java.sql.Date"/>
 </qualifiedTypeNameHistroy>

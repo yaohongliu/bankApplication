@@ -1,0 +1,9 @@
+package com.bank.model;
+
+public class Customer {
+	private int account_id;
+	private long contact;
+	private String customer_name, customer_password, customer_login, customer_email, dob, approved, create_date;
+	private double balance;
+
+}

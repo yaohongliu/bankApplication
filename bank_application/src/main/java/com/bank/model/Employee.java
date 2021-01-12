@@ -2,83 +2,71 @@ package com.bank.model;
 
 public class Employee {
 
-	private int employee_id;
-	private long contact;
-	private String employee_name;
-	private String employee_email;
-	private String employee_login;
-	private String employee_password;
-	
+	private int employeeId;
+	private String employeeName;
+	private String employeeEmail;
+	private String employeeUserName;
+	private String employeePassword;
+
 	public Employee() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Employee(int employee_id, long contact, String employee_name, String employee_email, String employee_login,
-			String employee_password) {
+	public Employee(int employeeId, String employeeName, String employeeEmail, String employeeUserName,
+			String employeePassword) {
 		super();
-		this.employee_id = employee_id;
-		this.contact = contact;
-		this.employee_name = employee_name;
-		this.employee_email = employee_email;
-		this.employee_login = employee_login;
-		this.employee_password = employee_password;
+		this.employeeId = employeeId;
+		this.employeeName = employeeName;
+		this.employeeEmail = employeeEmail;
+		this.employeeUserName = employeeUserName;
+		this.employeePassword = employeePassword;
 	}
 
-	public int getEmployee_id() {
-		return employee_id;
+	public int getemployeeId() {
+		return employeeId;
 	}
 
-	public void setEmployee_id(int employee_id) {
-		this.employee_id = employee_id;
+	public void setemployeeId(int employeeId) {
+		this.employeeId = employeeId;
 	}
 
-	public long getContact() {
-		return contact;
+	public String getemployeeName() {
+		return employeeName;
 	}
 
-	public void setContact(long contact) {
-		this.contact = contact;
+	public void setemployeeName(String employeeName) {
+		this.employeeName = employeeName;
 	}
 
-	public String getEmployee_name() {
-		return employee_name;
+	public String getemployeeEmail() {
+		return employeeEmail;
 	}
 
-	public void setEmployee_name(String employee_name) {
-		this.employee_name = employee_name;
+	public void setemployeeEmail(String employeeEmail) {
+		this.employeeEmail = employeeEmail;
 	}
 
-	public String getEmployee_email() {
-		return employee_email;
+	public String getemployeeUserName() {
+		return employeeUserName;
 	}
 
-	public void setEmployee_email(String employee_email) {
-		this.employee_email = employee_email;
+	public void setemployeeUserName(String employeeUserName) {
+		this.employeeUserName = employeeUserName;
 	}
 
-	public String getEmployee_login() {
-		return employee_login;
+	public String getemployeePassword() {
+		return employeePassword;
 	}
 
-	public void setEmployee_login(String employee_login) {
-		this.employee_login = employee_login;
-	}
-
-	public String getEmployee_password() {
-		return employee_password;
-	}
-
-	public void setEmployee_password(String employee_password) {
-		this.employee_password = employee_password;
+	public void setemployeePassword(String employeePassword) {
+		this.employeePassword = employeePassword;
 	}
 
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "Employee [ID = " +employee_id+", Name = "+employee_name+", Contact = "+contact+", Email = "+employee_email
-				+ ", login = "+employee_login +", password = "+employee_password+" ]";
+		return "Employee [ID = " + employeeId + ", Name = " + employeeName + ", Email = "
+				+ employeeEmail + ", login = " + employeeUserName + ", password = " + employeePassword + " ]";
 	}
-	
-	
-	
+
 }

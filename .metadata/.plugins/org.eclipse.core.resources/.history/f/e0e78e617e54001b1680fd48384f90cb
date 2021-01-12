@@ -1,0 +1,224 @@
+package com.bank.main;
+
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
+
+import com.bank.exception.BusinessException;
+import com.bank.model.CustomerAccount;
+import com.bank.service.dao.BankServiceDAO;
+import com.bank.service.dao.impl.BankServiceDAOImpl;
+
+
+public class BankServicesMain {
+
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+
+		Scanner sc = new Scanner(System.in);
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+		System.out.println("Welcome to ABC Bank Service Application");
+		System.out.println("=========================================");
+		System.out.println("Enter 1 for Customer");
+		System.out.println("Enter 2 for Employee");
+		System.out.println("Enter 3 to create a customer account");
+		int selection = sc.nextInt();
+		int Customer_choice = 0;
+		int Employee_choice = 0;
+		
+		if (selection == 1) {
+			do {
+				System.out.println(" Customer Menu");
+				System.out.println("---------------");
+				System.out.println("1) Apply Bank Account");
+				System.out.println("2) Withdraw");
+				System.out.println("3) Deposit");
+				System.out.println("4) View Balance");
+				System.out.println("5) Transfer Money");
+				System.out.println("6) Accept Money");
+				System.out.println("7) Exit");
+				System.out.println("Please enter appropriate choice between 1-7");
+				
+				try {
+					Customer_choice = Integer.parseInt(sc.nextLine());// if you enter special symbols
+				} catch (NumberFormatException e) {
+					
+				}
+
+				switch (Customer_choice) {
+				case 1:
+					createAccount(sc);
+					
+					break;
+				case 2:
+					BankServiceDAOImpl bankDAOWithdraw = new BankServiceDAOImpl();
+					System.out.println("Please enter the withdraw amount: ");
+					double withdrawAmount = Double.parseDouble(sc.nextLine());
+					System.out.println("Enter email: ");
+					String withdrawEmail = sc.nextLine();
+					
+					try {
+						bankDAOWithdraw.withdraw(withdrawAmount, withdrawEmail);
+					} catch (BusinessException e) {
+						e.printStackTrace();
+					}
+					break;
+				case 3:
+					BankServiceDAOImpl bankDAODeposit = new BankServiceDAOImpl();
+					System.out.println("Please enter the deposit amount: ");
+					double depositAmount = Double.parseDouble(sc.nextLine());
+					System.out.println("Enter email: ");
+					String  depositEmail = sc.nextLine();
+					
+					try {
+						bankDAODeposit.deposit(depositAmount, depositEmail);
+					} catch (BusinessException e) {
+						e.printStackTrace();
+					}
+					
+					break;
+				case 4:
+					BankServiceDAOImpl bankDAOViewBal = new BankServiceDAOImpl();
+					System.out.println("Please enter the account email to view the balance");
+					
+					try {
+						String  byEmail = sc.nextLine();
+						CustomerAccount cAccount = bankDAOViewBal.getCustomerByEmail(byEmail);
+						if(cAccount != null) {
+							System.out.println(cAccount);
+						}
+						
+					} catch (BusinessException e) {
+						e.printStackTrace();
+					}
+					
+					break;
+				case 5:
+					System.out.println("Transfer money....");
+					break;
+				case 6:
+					System.out.println("Accepte money....");
+					break;
+				case 7:
+					System.out.println("Exit....");
+					break;
+
+				}
+			} while (Customer_choice != 7);
+		}//end customer menu
+		
+		// employee choices
+		if (selection == 2) {
+			do {
+				System.out.println(" Employee Menu");
+				System.out.println("----------------");
+				System.out.println("1) Create a Bank Account");
+				System.out.println("2) View Customer Bank Account");
+				System.out.println("3) View Transaction History");
+				System.out.println("4) Exit");
+				System.out.println("Please enter appropriate choice between 1-4");
+
+				try {
+					Employee_choice = Integer.parseInt(sc.nextLine());// if you enter special symbols
+				} catch (NumberFormatException e) {
+
+				}
+
+				switch (Employee_choice) {
+					case 1:
+						System.out.println("Create a Bank Account....");
+						createBankAccount(sc);
+						break;
+					case 2:
+						System.out.println("view Account....");
+						break;
+					case 3:
+						System.out.println("View Transaction History....");
+						break;
+					case 4:
+						System.out.println("Exit....");
+						break;
+					default: 
+						System.out.println("Unrecognized choice");
+						break;
+				}
+			} while (Employee_choice != 6);
+		}//end employee choice
+		
+		if(selection == 3) {
+			System.out.println("Create a customer account....");
+			CustomerAccount newCustomer = new CustomerAccount();
+			
+			System.out.println("Enter your name: ");
+			newCustomer.setCustomer_name(sc.nextLine().toString());
+			
+			System.out.println("Enter your email: ");
+			newCustomer.setCustomerEmail(sc.nextLine().toString());
+			
+			System.out.println("Enter your username: ");
+			newCustomer.setCustomer_login(sc.nextLine().toString());
+			
+			System.out.println("Enter your pwd: ");
+			newCustomer.setCustomer_password(sc.nextLine().toString());
+			
+			//System.out.println("Enter your starting balance: ");
+			//double bal = Double.parseDouble(sc.nextLine());
+			///newCustomer.setBalance(bal);
+			
+			System.out.println("Enter your dob (YYYY-MM-DD): ");
+			newCustomer.setDob(sc.nextLine());
+			
+			BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+			try {
+				bankDAO.createAccount(newCustomer);
+				System.out.println("Your customer account has been created successfully!");
+			} catch (BusinessException e) {
+				e.printStackTrace();
+			}
+		}//end selection 3
+
+	} // end main
+
+	private static void createBankAccount(Scanner sc) {
+		System.out.println("Applying for a bank account....");
+		CustomerAccount newCustomer = new CustomerAccount();
+		
+		// prompt for name
+		//System.out.println("Enter your name: ");
+		//newCustomer.setCustomer_name(sc.nextLine().toString());
+		
+		// prompt for email
+		System.out.println("Enter your email: ");
+		newCustomer.setCustomerEmail(sc.nextLine().toString());
+		
+		// user
+		System.out.println("Enter your username: ");
+		newCustomer.setCustomer_login(sc.nextLine().toString());
+		
+		//pwd
+		System.out.println("Enter your pwd: ");
+		newCustomer.setCustomer_password(sc.nextLine().toString());
+		
+		// prompt for starting bal
+		System.out.println("Enter your starting balance: ");
+		double bal = Double.parseDouble(sc.nextLine());
+		newCustomer.setBalance(bal);
+		
+		// prompt for dob
+		//System.out.println("Enter your dob (YYYY-MM-DD): ");
+		//newCustomer.setDob(sc.nextLine());
+		
+		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+		try {
+			bankDAO.createAccount(newCustomer);
+			System.out.println("Your bank account has been created successfully!");
+		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+} // end class

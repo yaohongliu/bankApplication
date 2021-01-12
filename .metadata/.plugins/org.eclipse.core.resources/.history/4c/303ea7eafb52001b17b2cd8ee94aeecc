@@ -1,0 +1,31 @@
+package com.bank.service.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.bank.dao.dbutil.PostgresqlConnection;
+import com.bank.exception.BusinessException;
+import com.bank.model.Customers;
+import com.bank.service.BankServices;
+import com.bank.service.dao.BankServiceDAO;
+import com.bank.service.dao.impl.CustomerServiceDAOImpl;
+
+public class CustomerServiceImpl implements BankServices{
+
+	private BankServiceDAO bankServiceDAO = new CustomerServiceDAOImpl();
+	
+	@Override
+	public List<Customers> getCustomerInfo() throws BusinessException {
+		List<Customers> allCustomerList = null;
+		allCustomerList = bankServiceDAO.getCustomerInfo();
+		
+		return allCustomerList;
+	
+	}
+	
+	
+}
