@@ -39,63 +39,27 @@ public class BankServicesMain {
 				}
 
 				switch (customerChoice) {
-				case 1:
-					createBankAccount(sc);
-
-					break;
-				case 2:
-					BankServiceDAOImpl bankDAOWithdraw = new BankServiceDAOImpl();
-					System.out.println("Please enter the withdraw amount: ");
-					double withdrawAmount = Double.parseDouble(sc.nextLine());
-					System.out.println("Enter email: ");
-					String withdrawEmail = sc.nextLine();
-
-					try {
-						bankDAOWithdraw.withdraw(withdrawAmount, withdrawEmail);
-					} catch (BusinessException e) {
-						e.printStackTrace();
-					}
-					break;
-				case 3:
-					BankServiceDAOImpl bankDAODeposit = new BankServiceDAOImpl();
-					System.out.println("Please enter the deposit amount: ");
-					double depositAmount = Double.parseDouble(sc.nextLine());
-					System.out.println("Enter email: ");
-					String depositEmail = sc.nextLine();
-
-					try {
-						bankDAODeposit.deposit(depositAmount, depositEmail);
-					} catch (BusinessException e) {
-						e.printStackTrace();
-					}
-
-					break;
-				case 4:
-					BankServiceDAOImpl bankDAOViewBal = new BankServiceDAOImpl();
-					System.out.println("Please enter the account email to view the balance");
-
-					try {
-						String byEmail = sc.nextLine();
-						CustomerAccount cAccount = bankDAOViewBal.getCustomerByEmail(byEmail);
-						if (cAccount != null) {
-							System.out.println(cAccount);
-						}
-
-					} catch (BusinessException e) {
-						e.printStackTrace();
-					}
-
-					break;
-				case 5:
-					System.out.println("Transfer money....");
-					break;
-				case 6:
-					System.out.println("Accepte money....");
-					break;
-				case 7:
-					System.out.println("Exit....");
-					break;
-
+					case 1:  // create acct
+						createBankAccount(sc);
+						break;
+					case 2:  // withdraw (requires login)
+						withdraw(sc);
+						break;
+					case 3:  // deposit (requires login)
+						deposit(sc);
+						break;
+					case 4:  // view balance (requires login)
+						viewBalance(sc);
+						break;
+					case 5:
+						System.out.println("Transfer money....");
+						break;
+					case 6:
+						System.out.println("Accept money....");
+						break;
+					case 7:
+						System.out.println("Exit....");
+						break;
 				}
 			} while (customerChoice != 7);
 		} // end customer menu
@@ -118,39 +82,78 @@ public class BankServicesMain {
 				}
 
 				switch (employeeChoice) {
-				case 1:
-					System.out.println("Create a Bank Account....");
-					createBankAccount(sc);
-					break;
-				case 2:
-					System.out.println("view Account....");
-					System.out.println("Enter the email of the account you want to view:");
-					String viewByEmail = sc.nextLine();
-					BankServiceDAOImpl bankDAOViewAcc = new BankServiceDAOImpl();
-					try {
-						CustomerAccount cAccount = bankDAOViewAcc.getCustomerByEmail(viewByEmail);
-						if (cAccount != null) {
-							System.out.println(cAccount);
-						}
-
-					} catch (BusinessException e) {
-						e.printStackTrace();
-					}
-
-					break;
-				case 3:
-					System.out.println("View Transaction History....");
-					break;
-				case 4:
-					System.out.println("Exit....");
-					break;
-				default:
-					System.out.println("Unrecognized choice");
-					break;
+					case 1:
+						System.out.println("Approve/Reject Applications....");
+						createBankAccount(sc);
+						break;
+					case 2:
+						System.out.println("View Accounts....");
+						viewAccounts(sc);
+						break;
+					case 3:
+						System.out.println("View Transaction History....");
+						break;
+					case 4:
+						System.out.println("Exit....");
+						break;
+					default:
+						System.out.println("Unrecognized choice");
+						break;
 				}
 			} while (employeeChoice != 6);
 		} // end employee choice
 	} // end main
+
+	/**
+	 * 
+	 * @param sc Scanner 
+	 */
+	private static void viewBalance(Scanner sc) {
+		CustomerAccount customer = customerLogin(sc);
+
+		if (customer != null) {
+			System.out.println(customer.detailedString());
+		}
+	}
+
+	/**
+	 * 
+	 * @param sc Scanner
+	 */
+	private static void deposit(Scanner sc) {
+		BankServiceDAOImpl bankDAODeposit = new BankServiceDAOImpl();
+		System.out.println("Please enter the deposit amount: ");
+		double depositAmount = Double.parseDouble(sc.nextLine());
+		
+		CustomerAccount customer = customerLogin(sc);
+
+		if (customer != null) {
+			try {
+				bankDAODeposit.deposit(depositAmount, customer);
+			} catch (BusinessException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
+	private static void withdraw(Scanner sc) {
+		BankServiceDAOImpl bankDAOWithdraw = new BankServiceDAOImpl();
+		System.out.println("Please enter the withdraw amount: ");
+		double withdrawAmount = Double.parseDouble(sc.nextLine());
+		System.out.println("Enter email: ");
+		String withdrawEmail = sc.nextLine();
+
+		try {
+			bankDAOWithdraw.withdraw(withdrawAmount, withdrawEmail);
+		} catch (BusinessException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void viewAccounts(Scanner sc) {
+		// TODO: implement
+	}
 
 	private static void displayMenu() {
 		System.out.println(" Customer Menu");
@@ -207,5 +210,30 @@ public class BankServicesMain {
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * 
+	 * @param sc Scanner
+	 * @return a CustomerAccount object
+	 */
+	private static CustomerAccount customerLogin(Scanner sc) {
+		CustomerAccount customer = null;
+		
+		System.out.println("Log in to your bank account with username / password. \n Account must be approved.");
+		System.out.println("Username: ");
+		String username = sc.nextLine();
+		System.out.println("Password: ");
+		String password = sc.nextLine();
+		
+		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+		try {
+			customer = bankDAO.getCustomerByUsernameAndPassword(username, password);
+		} catch (BusinessException e) {
+			System.out.println("Account cannot be found!");
+			e.printStackTrace();
+		}
+		
+		return customer;
 	}
 } // end class

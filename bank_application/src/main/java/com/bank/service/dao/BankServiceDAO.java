@@ -15,7 +15,7 @@ public interface BankServiceDAO {
 
 	public CustomerAccount getBalanceByEmail(String email) throws BusinessException;
 
-	public void deposit(double amount, String email) throws BusinessException;
+	public void deposit(double amount, CustomerAccount customer) throws BusinessException;
 
 	public void withdraw(double amount, String email) throws BusinessException;
 

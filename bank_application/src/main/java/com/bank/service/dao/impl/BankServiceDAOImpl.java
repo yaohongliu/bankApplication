@@ -91,16 +91,15 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	}
 
 	@Override
-	public void deposit(double amount, String email) throws BusinessException {
-		CustomerAccount account = getCustomerByEmail(email);
-		System.out.println("Customer id: " + account.getCustomerId());
-		System.out.println("Status: " + account.getApproved());
-		if (account.getApproved().equals("t")) {
+	public void deposit(double amount, CustomerAccount customer) throws BusinessException {
+		System.out.println("Customer id: " + customer.getCustomerId());
+		System.out.println("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t")) {
 			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
 			try (Connection connection = PostgresqlConnection.getConnection()) {
 				PreparedStatement ps = connection.prepareStatement(sql);
-				ps.setDouble(1, account.getBalance() + amount);
-				ps.setInt(2, account.getCustomerId());
+				ps.setDouble(1, customer.getBalance() + amount);
+				ps.setInt(2, customer.getCustomerId());
 				ps.executeUpdate();
 
 			} catch (ClassNotFoundException | SQLException e) {
@@ -163,6 +162,38 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				account.setApproved(resultSet.getString("approved"));
 			} else {
 				throw new BusinessException("No account found with this email");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+	
+	
+	public CustomerAccount getCustomerByUsernameAndPassword(String username, String password) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_login = ? and bankapplication.t_customer.customer_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this username and password!");
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");

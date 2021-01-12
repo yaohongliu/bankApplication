@@ -96,6 +96,6 @@ public class CustomerAccount {
 	 * @return
 	 */
 	public String detailedString() {
-		return "";
+		return "Customer "+customerId+" Name: "+name+", acount ID: "+accountId+", balance: "+balance;
 	}
 }
