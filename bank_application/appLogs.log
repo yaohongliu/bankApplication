@@ -268,3 +268,13 @@
 {INFO}   com.bank.main.BankServicesMain     Status: t    12-Jan-2021 Tuesday CST 22:55:32
 {INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 22:55:32
 {INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 22:55:32
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:24:15
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:24:15
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:25:09
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:25:09
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:25:09
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:25:09
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:26:30
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:26:31
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:26:34
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:26:34

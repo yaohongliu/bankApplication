@@ -321,36 +321,11 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * yes? update balance (subtract) and update account tbl
 	 * @param customer
 	 * @param toAccount
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
 	 */
-	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws SQLException, ClassNotFoundException {
+	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) {
 		double balance;
-		try(Connection connection = PostgresqlConnection.getConnection()) {
+		try {
 			balance = this.getBalanceByAccountId(customer.getAccountId());
-			if (balance < amountToTransfer) {
-				throw new BusinessException("You do not have sufficient funds!");
-			}
-			
-			balance = balance - amountToTransfer; // new balance less transfer amount
-			String sql = "update bankapplication.t_account set balance = ? where account_id = ?;";
-			
-			// update sender's balance
-			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setDouble(1, balance);
-			ps.setInt(2, customer.getAccountId());
-			ps.executeUpdate();
-			
-			// update transaction table
-			Date date = new Date();
-			String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
-					+ "values (default, ?, ?, ?, ?::date, false);";
-			PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
-			transactionPreparedStatement.setInt(1, customer.getCustomerId());
-			transactionPreparedStatement.setDouble(2, toAccount);
-			transactionPreparedStatement.setDouble(3, amountToTransfer);
-			transactionPreparedStatement.setString(4, date.toString());
-			transactionPreparedStatement.executeUpdate();
 			
 		} catch (BusinessException e) {
 			e.printStackTrace();

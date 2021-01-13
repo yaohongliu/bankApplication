@@ -430,10 +430,6 @@ public class BankServicesMain {
 		return isBalancePositive;
 	}
 
-	/**
-	 * 
-	 * @param sc
-	 */
 	public static void viewTransactionLog(Scanner sc) {
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		try {
@@ -449,11 +445,6 @@ public class BankServicesMain {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param sc
-	 * @param customer
-	 */
 	public static void transferFunds(Scanner sc, CustomerAccount customer) {
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		System.out.println("Enter account ID you want to transfer funds to: ");
@@ -461,11 +452,7 @@ public class BankServicesMain {
 		System.out.println("Enter the amount you want to transfer: ");
 		double amount = Double.parseDouble(sc.nextLine());
 		
-		try {
-			bankServiceDaoImpl.transferMoney(customer, toAccount, amount);
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
+		bankServiceDaoImpl.transferMoney(customer, toAccount, amount);
 	}
 	
 } // end class

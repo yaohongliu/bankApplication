@@ -430,10 +430,6 @@ public class BankServicesMain {
 		return isBalancePositive;
 	}
 
-	/**
-	 * 
-	 * @param sc
-	 */
 	public static void viewTransactionLog(Scanner sc) {
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		try {

@@ -6503,3 +6503,1551 @@ java.lang.InterruptedException
 
 !ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 22:55:16.063
 !MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:07:51.042
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:07:51.055
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.jdt.core 4 4 2021-01-12 23:08:10.564
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.bank.service.dao.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import com.bank.dao.dbutil.PostgresqlConnection;
+import com.bank.exception.BusinessException;
+import com.bank.main.BankServicesMain;
+import com.bank.model.CustomerAccount;
+import com.bank.model.Employee;
+import com.bank.model.Transaction;
+import com.bank.service.dao.BankServiceDAO;
+
+public class BankServiceDAOImpl implements BankServiceDAO {
+
+	private static Logger log = Logger.getLogger(BankServicesMain.class);
+
+	@Override
+	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
+		List<CustomerAccount> customerList = new ArrayList<>();
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customers";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				CustomerAccount customer = new CustomerAccount();
+				customer.setCustomerId(resultSet.getInt("customer_id"));
+				customer.setName(resultSet.getString("customer_name"));
+				customer.setEmail(resultSet.getString("customer_email"));
+				customer.setPassword(resultSet.getString("customer_password"));
+				customer.setUsername(resultSet.getString("customer_login"));
+				customer.setDob(resultSet.getString("dob"));
+				customerList.add(customer);
+			}
+			if (customerList.size() == 0) {
+				throw new BusinessException("No customer in database so far");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return customerList;
+
+	}
+
+	@Override
+	public int createAccount(CustomerAccount customer) throws BusinessException {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		int n = 0;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql_customer = "insert into bankapplication.t_customer "
+					+ "(customer_id, customer_name, customer_email, customer_login, customer_password, dob) "
+					+ "values (default, ?, ?, ?, ?, ?::date);";
+			PreparedStatement cust_preparedStatement = connection.prepareStatement(sql_customer);
+			cust_preparedStatement.setString(1, customer.getName());
+			cust_preparedStatement.setString(2, customer.getEmail());
+			cust_preparedStatement.setString(3, customer.getUsername());
+			cust_preparedStatement.setString(4, customer.getPassword());
+			cust_preparedStatement.setString(5, customer.getDob());
+			cust_preparedStatement.executeUpdate();
+
+			String sql_account = "insert into bankapplication.t_account "
+					+ "(account_id, customer_id, balance, create_date, approved)"
+					+ " values (default, (select max(t_customer.customer_id) from bankapplication.t_customer), ?, ?::date, false);";
+
+			PreparedStatement acctPreparedStatement = connection.prepareStatement(sql_account);
+			acctPreparedStatement.setDouble(1, customer.getBalance());
+			acctPreparedStatement.setString(2, new Date().toString());
+
+			n = acctPreparedStatement.executeUpdate();
+
+			Date date = new Date();
+			String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+					+ "values (default, (select max(t_account.account_id) from bankapplication.t_account), "
+					+ "(select max(t_account.account_id) from bankapplication.t_account), ?, ?::date, false);";
+			PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+			transactionPreparedStatement.setDouble(1, customer.getBalance());
+			transactionPreparedStatement.setString(2, date.toString());
+			transactionPreparedStatement.executeUpdate();
+
+		} catch (ClassNotFoundException | SQLException e) {
+			System.out.println(e);
+			throw new BusinessException("Internal error occured contact SYSADMIN");
+		}
+		return n;
+	}
+
+	@Override
+	public void deposit(double amount, CustomerAccount customer) throws BusinessException {
+		System.out.println("Customer id: " + customer.getCustomerId());
+		System.out.println("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t")) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try (Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, customer.getBalance() + amount);
+				ps.setInt(2, customer.getCustomerId());
+				ps.executeUpdate();
+				
+				Date date = new Date();
+				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+						+ "values (default, ?, ?, ?, ?::date, false);";
+				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+				transactionPreparedStatement.setInt(1, customer.getAccountId());
+				transactionPreparedStatement.setDouble(2, customer.getAccountId());
+				transactionPreparedStatement.setDouble(3, amount);
+				transactionPreparedStatement.setString(4, date.toString());
+				transactionPreparedStatement.executeUpdate();
+
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new BusinessException("Internal error occured contact SYSADMIN ");
+			}
+		} else {
+			throw new BusinessException("Your account is not yet approved!");
+		}
+	}
+	
+	@Override
+	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
+		log.info("Customer id: " + customer.getCustomerId());
+		log.info("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t") && customer.getBalance() >= amount) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try (Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, customer.getBalance() - amount);
+				ps.setInt(2, customer.getCustomerId());
+				ps.executeUpdate();
+				
+				Date date = new Date();
+				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+						+ "values (default, ?, ?, ?, ?::date, false);";
+				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+				transactionPreparedStatement.setInt(1, customer.getAccountId());
+				transactionPreparedStatement.setDouble(2, customer.getAccountId());
+				transactionPreparedStatement.setDouble(3, -amount);
+				transactionPreparedStatement.setString(4, date.toString());
+				transactionPreparedStatement.executeUpdate();
+
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new BusinessException("Internal error occured contact SYSADMIN ");
+			}
+		} else {
+			log.warn("Your account does not have enough balance to withdraw!");
+			throw new BusinessException("Transaction rejected: No enough Balance");
+		}
+
+	}
+
+	@Override
+	public double getBalanceByCustomerId(int customerId) throws BusinessException {
+		double balance;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select balance from bankapplication.t_account where customer_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+			ResultSet resultSet = ps.executeQuery();
+
+			if (resultSet.next()) {
+				balance = resultSet.getDouble("balance");
+			} else {
+				throw new BusinessException("No account found with this ID: " + customerId);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return balance;
+	}
+	
+	@Override
+	public double getBalanceByAccountId(int accountId) throws BusinessException {
+		double balance;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select balance from bankapplication.t_account where account_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, accountId);
+			ResultSet resultSet = ps.executeQuery();
+
+			if (resultSet.next()) {
+				balance = resultSet.getDouble("balance");
+			} else {
+				throw new BusinessException("No account found with this ID: " + accountId);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return balance;
+	}
+	
+
+	@Override
+	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_email = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, email);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this email!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+	
+	@Override
+	public CustomerAccount getCustomerById(int customerId) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this ID");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+	
+	@Override
+	public void approveAccount(int customerId) throws BusinessException {
+		String sql = "update bankapplication.t_account set approved = true where customer_id = ?;";
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+			ps.execute();
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+	}
+
+	/**
+	 * For user log-in
+	 */
+	@Override
+	public CustomerAccount getCustomerByUsernameAndPassword(String username, String password) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_login = ? and bankapplication.t_customer.customer_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setEmail(resultSet.getString("customer_email"));
+				account.setDob(resultSet.getString("dob"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				log.warn("Wrong username or password!");
+				throw new BusinessException("No account found with this username and password!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+
+	public transferMoney(customer, toAccount)
+
+	@Override
+	public Employee employeeLogin(String username, String password) throws BusinessException {
+		Employee employee = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_employee where "
+					+ "bankapplication.t_employee.employee_login = ? and bankapplication.t_employee.employee_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				employee = new Employee();
+				employee.setEmployeeId(resultSet.getInt("employee_id"));
+				employee.setEmployeeName(resultSet.getString("employee_name"));
+				employee.setEmployeeEmail(resultSet.getString("employee_email"));
+				employee.setEmployeeUsername(resultSet.getString("employee_login"));
+				employee.setEmployeePassword(resultSet.getString("employee_password"));
+			} else {
+				log.warn("Wrong username or password!");
+				throw new BusinessException("No account found with this username and password!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return employee;
+	}
+	
+	@Override
+	public List<Transaction> viewTransactionTable() throws BusinessException{
+		List<Transaction> transactionList = new ArrayList<>();
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_transaction";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				Transaction transaction = new Transaction();
+				transaction.setTransactionId(resultSet.getInt("transaction_id"));
+				transaction.setFromAccount(resultSet.getInt("from_account"));
+				transaction.setToAccount(resultSet.getInt("to_account"));
+				transaction.setAmount(resultSet.getDouble("amount"));
+				transaction.setTime(resultSet.getDate("transaction_time"));
+				transaction.setApproved(resultSet.getString("approved"));
+				transactionList.add(transaction);
+			}
+			if (transactionList.size() == 0) {
+				throw new BusinessException("No transaction in database so far");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return transactionList;
+	}
+	
+	@Override
+	public void approveTransfer(Transaction transaction) throws BusinessException {
+		String approveSql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";
+		String transferSql = "update bankapplication.t_account set balance = ? where account_id = ?;";
+		
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			log.info("approving transaction....");
+			PreparedStatement ps_approve = connection.prepareStatement(approveSql);
+			ps_approve.setInt(1, transaction.getTransactionId());
+			ps_approve.executeUpdate();
+			log.info("getting your balance.....");
+			//get balance
+			double balance = this.getBalanceByAccountId(transaction.getToAccount());
+			log.info("Your old balance: " + balance);
+			balance = transaction.getAmount() + balance; //new balance value
+			log.info("Your new balance will be: " + balance);
+			log.info("adding funds to account");
+			// add funds to receiving account
+			// funds are automatically subtracted from sender when they transfer 
+			PreparedStatement ps_transfer = connection.prepareStatement(transferSql);
+			ps_transfer.setDouble(1, balance);  // add transfer amount to receiving acct balance
+			ps_transfer.setInt(2, transaction.getToAccount());
+			ps_transfer.executeUpdate();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+	}
+
+}
+
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2021-01-12 23:08:10.577
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.jdt.ui".
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2021-01-12 23:08:10.587
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.core 4 4 2021-01-12 23:08:16.632
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.bank.service.dao.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import com.bank.dao.dbutil.PostgresqlConnection;
+import com.bank.exception.BusinessException;
+import com.bank.main.BankServicesMain;
+import com.bank.model.CustomerAccount;
+import com.bank.model.Employee;
+import com.bank.model.Transaction;
+import com.bank.service.dao.BankServiceDAO;
+
+public class BankServiceDAOImpl implements BankServiceDAO {
+
+	private static Logger log = Logger.getLogger(BankServicesMain.class);
+
+	@Override
+	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
+		List<CustomerAccount> customerList = new ArrayList<>();
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customers";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				CustomerAccount customer = new CustomerAccount();
+				customer.setCustomerId(resultSet.getInt("customer_id"));
+				customer.setName(resultSet.getString("customer_name"));
+				customer.setEmail(resultSet.getString("customer_email"));
+				customer.setPassword(resultSet.getString("customer_password"));
+				customer.setUsername(resultSet.getString("customer_login"));
+				customer.setDob(resultSet.getString("dob"));
+				customerList.add(customer);
+			}
+			if (customerList.size() == 0) {
+				throw new BusinessException("No customer in database so far");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return customerList;
+
+	}
+
+	@Override
+	public int createAccount(CustomerAccount customer) throws BusinessException {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		int n = 0;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql_customer = "insert into bankapplication.t_customer "
+					+ "(customer_id, customer_name, customer_email, customer_login, customer_password, dob) "
+					+ "values (default, ?, ?, ?, ?, ?::date);";
+			PreparedStatement cust_preparedStatement = connection.prepareStatement(sql_customer);
+			cust_preparedStatement.setString(1, customer.getName());
+			cust_preparedStatement.setString(2, customer.getEmail());
+			cust_preparedStatement.setString(3, customer.getUsername());
+			cust_preparedStatement.setString(4, customer.getPassword());
+			cust_preparedStatement.setString(5, customer.getDob());
+			cust_preparedStatement.executeUpdate();
+
+			String sql_account = "insert into bankapplication.t_account "
+					+ "(account_id, customer_id, balance, create_date, approved)"
+					+ " values (default, (select max(t_customer.customer_id) from bankapplication.t_customer), ?, ?::date, false);";
+
+			PreparedStatement acctPreparedStatement = connection.prepareStatement(sql_account);
+			acctPreparedStatement.setDouble(1, customer.getBalance());
+			acctPreparedStatement.setString(2, new Date().toString());
+
+			n = acctPreparedStatement.executeUpdate();
+
+			Date date = new Date();
+			String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+					+ "values (default, (select max(t_account.account_id) from bankapplication.t_account), "
+					+ "(select max(t_account.account_id) from bankapplication.t_account), ?, ?::date, false);";
+			PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+			transactionPreparedStatement.setDouble(1, customer.getBalance());
+			transactionPreparedStatement.setString(2, date.toString());
+			transactionPreparedStatement.executeUpdate();
+
+		} catch (ClassNotFoundException | SQLException e) {
+			System.out.println(e);
+			throw new BusinessException("Internal error occured contact SYSADMIN");
+		}
+		return n;
+	}
+
+	@Override
+	public void deposit(double amount, CustomerAccount customer) throws BusinessException {
+		System.out.println("Customer id: " + customer.getCustomerId());
+		System.out.println("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t")) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try (Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, customer.getBalance() + amount);
+				ps.setInt(2, customer.getCustomerId());
+				ps.executeUpdate();
+				
+				Date date = new Date();
+				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+						+ "values (default, ?, ?, ?, ?::date, false);";
+				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+				transactionPreparedStatement.setInt(1, customer.getAccountId());
+				transactionPreparedStatement.setDouble(2, customer.getAccountId());
+				transactionPreparedStatement.setDouble(3, amount);
+				transactionPreparedStatement.setString(4, date.toString());
+				transactionPreparedStatement.executeUpdate();
+
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new BusinessException("Internal error occured contact SYSADMIN ");
+			}
+		} else {
+			throw new BusinessException("Your account is not yet approved!");
+		}
+	}
+	
+	@Override
+	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
+		log.info("Customer id: " + customer.getCustomerId());
+		log.info("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t") && customer.getBalance() >= amount) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try (Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, customer.getBalance() - amount);
+				ps.setInt(2, customer.getCustomerId());
+				ps.executeUpdate();
+				
+				Date date = new Date();
+				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+						+ "values (default, ?, ?, ?, ?::date, false);";
+				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+				transactionPreparedStatement.setInt(1, customer.getAccountId());
+				transactionPreparedStatement.setDouble(2, customer.getAccountId());
+				transactionPreparedStatement.setDouble(3, -amount);
+				transactionPreparedStatement.setString(4, date.toString());
+				transactionPreparedStatement.executeUpdate();
+
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new BusinessException("Internal error occured contact SYSADMIN ");
+			}
+		} else {
+			log.warn("Your account does not have enough balance to withdraw!");
+			throw new BusinessException("Transaction rejected: No enough Balance");
+		}
+
+	}
+
+	@Override
+	public double getBalanceByCustomerId(int customerId) throws BusinessException {
+		double balance;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select balance from bankapplication.t_account where customer_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+			ResultSet resultSet = ps.executeQuery();
+
+			if (resultSet.next()) {
+				balance = resultSet.getDouble("balance");
+			} else {
+				throw new BusinessException("No account found with this ID: " + customerId);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return balance;
+	}
+	
+	@Override
+	public double getBalanceByAccountId(int accountId) throws BusinessException {
+		double balance;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select balance from bankapplication.t_account where account_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, accountId);
+			ResultSet resultSet = ps.executeQuery();
+
+			if (resultSet.next()) {
+				balance = resultSet.getDouble("balance");
+			} else {
+				throw new BusinessException("No account found with this ID: " + accountId);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return balance;
+	}
+	
+
+	@Override
+	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_email = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, email);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this email!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+	
+	@Override
+	public CustomerAccount getCustomerById(int customerId) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this ID");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+	
+	@Override
+	public void approveAccount(int customerId) throws BusinessException {
+		String sql = "update bankapplication.t_account set approved = true where customer_id = ?;";
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+			ps.execute();
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+	}
+
+	/**
+	 * For user log-in
+	 */
+	@Override
+	public CustomerAccount getCustomerByUsernameAndPassword(String username, String password) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_login = ? and bankapplication.t_customer.customer_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setEmail(resultSet.getString("customer_email"));
+				account.setDob(resultSet.getString("dob"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				log.warn("Wrong username or password!");
+				throw new BusinessException("No account found with this username and password!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+
+	public void transferMoney(customer, toAccount)
+
+	@Override
+	public Employee employeeLogin(String username, String password) throws BusinessException {
+		Employee employee = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_employee where "
+					+ "bankapplication.t_employee.employee_login = ? and bankapplication.t_employee.employee_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				employee = new Employee();
+				employee.setEmployeeId(resultSet.getInt("employee_id"));
+				employee.setEmployeeName(resultSet.getString("employee_name"));
+				employee.setEmployeeEmail(resultSet.getString("employee_email"));
+				employee.setEmployeeUsername(resultSet.getString("employee_login"));
+				employee.setEmployeePassword(resultSet.getString("employee_password"));
+			} else {
+				log.warn("Wrong username or password!");
+				throw new BusinessException("No account found with this username and password!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return employee;
+	}
+	
+	@Override
+	public List<Transaction> viewTransactionTable() throws BusinessException{
+		List<Transaction> transactionList = new ArrayList<>();
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_transaction";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				Transaction transaction = new Transaction();
+				transaction.setTransactionId(resultSet.getInt("transaction_id"));
+				transaction.setFromAccount(resultSet.getInt("from_account"));
+				transaction.setToAccount(resultSet.getInt("to_account"));
+				transaction.setAmount(resultSet.getDouble("amount"));
+				transaction.setTime(resultSet.getDate("transaction_time"));
+				transaction.setApproved(resultSet.getString("approved"));
+				transactionList.add(transaction);
+			}
+			if (transactionList.size() == 0) {
+				throw new BusinessException("No transaction in database so far");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return transactionList;
+	}
+	
+	@Override
+	public void approveTransfer(Transaction transaction) throws BusinessException {
+		String approveSql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";
+		String transferSql = "update bankapplication.t_account set balance = ? where account_id = ?;";
+		
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			log.info("approving transaction....");
+			PreparedStatement ps_approve = connection.prepareStatement(approveSql);
+			ps_approve.setInt(1, transaction.getTransactionId());
+			ps_approve.executeUpdate();
+			log.info("getting your balance.....");
+			//get balance
+			double balance = this.getBalanceByAccountId(transaction.getToAccount());
+			log.info("Your old balance: " + balance);
+			balance = transaction.getAmount() + balance; //new balance value
+			log.info("Your new balance will be: " + balance);
+			log.info("adding funds to account");
+			// add funds to receiving account
+			// funds are automatically subtracted from sender when they transfer 
+			PreparedStatement ps_transfer = connection.prepareStatement(transferSql);
+			ps_transfer.setDouble(1, balance);  // add transfer amount to receiving acct balance
+			ps_transfer.setInt(2, transaction.getToAccount());
+			ps_transfer.executeUpdate();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+	}
+
+}
+
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2021-01-12 23:08:16.642
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.jdt.ui".
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2021-01-12 23:08:16.652
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.core 4 4 2021-01-12 23:08:21.683
+!MESSAGE Exception occurred during compilation unit conversion:
+----------------------------------- SOURCE BEGIN -------------------------------------
+package com.bank.service.dao.impl;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import com.bank.dao.dbutil.PostgresqlConnection;
+import com.bank.exception.BusinessException;
+import com.bank.main.BankServicesMain;
+import com.bank.model.CustomerAccount;
+import com.bank.model.Employee;
+import com.bank.model.Transaction;
+import com.bank.service.dao.BankServiceDAO;
+
+public class BankServiceDAOImpl implements BankServiceDAO {
+
+	private static Logger log = Logger.getLogger(BankServicesMain.class);
+
+	@Override
+	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
+		List<CustomerAccount> customerList = new ArrayList<>();
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customers";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				CustomerAccount customer = new CustomerAccount();
+				customer.setCustomerId(resultSet.getInt("customer_id"));
+				customer.setName(resultSet.getString("customer_name"));
+				customer.setEmail(resultSet.getString("customer_email"));
+				customer.setPassword(resultSet.getString("customer_password"));
+				customer.setUsername(resultSet.getString("customer_login"));
+				customer.setDob(resultSet.getString("dob"));
+				customerList.add(customer);
+			}
+			if (customerList.size() == 0) {
+				throw new BusinessException("No customer in database so far");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return customerList;
+
+	}
+
+	@Override
+	public int createAccount(CustomerAccount customer) throws BusinessException {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		int n = 0;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql_customer = "insert into bankapplication.t_customer "
+					+ "(customer_id, customer_name, customer_email, customer_login, customer_password, dob) "
+					+ "values (default, ?, ?, ?, ?, ?::date);";
+			PreparedStatement cust_preparedStatement = connection.prepareStatement(sql_customer);
+			cust_preparedStatement.setString(1, customer.getName());
+			cust_preparedStatement.setString(2, customer.getEmail());
+			cust_preparedStatement.setString(3, customer.getUsername());
+			cust_preparedStatement.setString(4, customer.getPassword());
+			cust_preparedStatement.setString(5, customer.getDob());
+			cust_preparedStatement.executeUpdate();
+
+			String sql_account = "insert into bankapplication.t_account "
+					+ "(account_id, customer_id, balance, create_date, approved)"
+					+ " values (default, (select max(t_customer.customer_id) from bankapplication.t_customer), ?, ?::date, false);";
+
+			PreparedStatement acctPreparedStatement = connection.prepareStatement(sql_account);
+			acctPreparedStatement.setDouble(1, customer.getBalance());
+			acctPreparedStatement.setString(2, new Date().toString());
+
+			n = acctPreparedStatement.executeUpdate();
+
+			Date date = new Date();
+			String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+					+ "values (default, (select max(t_account.account_id) from bankapplication.t_account), "
+					+ "(select max(t_account.account_id) from bankapplication.t_account), ?, ?::date, false);";
+			PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+			transactionPreparedStatement.setDouble(1, customer.getBalance());
+			transactionPreparedStatement.setString(2, date.toString());
+			transactionPreparedStatement.executeUpdate();
+
+		} catch (ClassNotFoundException | SQLException e) {
+			System.out.println(e);
+			throw new BusinessException("Internal error occured contact SYSADMIN");
+		}
+		return n;
+	}
+
+	@Override
+	public void deposit(double amount, CustomerAccount customer) throws BusinessException {
+		System.out.println("Customer id: " + customer.getCustomerId());
+		System.out.println("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t")) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try (Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, customer.getBalance() + amount);
+				ps.setInt(2, customer.getCustomerId());
+				ps.executeUpdate();
+				
+				Date date = new Date();
+				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+						+ "values (default, ?, ?, ?, ?::date, false);";
+				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+				transactionPreparedStatement.setInt(1, customer.getAccountId());
+				transactionPreparedStatement.setDouble(2, customer.getAccountId());
+				transactionPreparedStatement.setDouble(3, amount);
+				transactionPreparedStatement.setString(4, date.toString());
+				transactionPreparedStatement.executeUpdate();
+
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new BusinessException("Internal error occured contact SYSADMIN ");
+			}
+		} else {
+			throw new BusinessException("Your account is not yet approved!");
+		}
+	}
+	
+	@Override
+	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
+		log.info("Customer id: " + customer.getCustomerId());
+		log.info("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t") && customer.getBalance() >= amount) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try (Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, customer.getBalance() - amount);
+				ps.setInt(2, customer.getCustomerId());
+				ps.executeUpdate();
+				
+				Date date = new Date();
+				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+						+ "values (default, ?, ?, ?, ?::date, false);";
+				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
+				transactionPreparedStatement.setInt(1, customer.getAccountId());
+				transactionPreparedStatement.setDouble(2, customer.getAccountId());
+				transactionPreparedStatement.setDouble(3, -amount);
+				transactionPreparedStatement.setString(4, date.toString());
+				transactionPreparedStatement.executeUpdate();
+
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new BusinessException("Internal error occured contact SYSADMIN ");
+			}
+		} else {
+			log.warn("Your account does not have enough balance to withdraw!");
+			throw new BusinessException("Transaction rejected: No enough Balance");
+		}
+
+	}
+
+	@Override
+	public double getBalanceByCustomerId(int customerId) throws BusinessException {
+		double balance;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select balance from bankapplication.t_account where customer_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+			ResultSet resultSet = ps.executeQuery();
+
+			if (resultSet.next()) {
+				balance = resultSet.getDouble("balance");
+			} else {
+				throw new BusinessException("No account found with this ID: " + customerId);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return balance;
+	}
+	
+	@Override
+	public double getBalanceByAccountId(int accountId) throws BusinessException {
+		double balance;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select balance from bankapplication.t_account where account_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, accountId);
+			ResultSet resultSet = ps.executeQuery();
+
+			if (resultSet.next()) {
+				balance = resultSet.getDouble("balance");
+			} else {
+				throw new BusinessException("No account found with this ID: " + accountId);
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return balance;
+	}
+	
+
+	@Override
+	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_email = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, email);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this email!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+	
+	@Override
+	public CustomerAccount getCustomerById(int customerId) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this ID");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+	
+	@Override
+	public void approveAccount(int customerId) throws BusinessException {
+		String sql = "update bankapplication.t_account set approved = true where customer_id = ?;";
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+			ps.execute();
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+	}
+
+	/**
+	 * For user log-in
+	 */
+	@Override
+	public CustomerAccount getCustomerByUsernameAndPassword(String username, String password) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_login = ? and bankapplication.t_customer.customer_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setEmail(resultSet.getString("customer_email"));
+				account.setDob(resultSet.getString("dob"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				log.warn("Wrong username or password!");
+				throw new BusinessException("No account found with this username and password!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
+
+	public void transferMoney(customer, toAccount) {
+
+	@Override
+	public Employee employeeLogin(String username, String password) throws BusinessException {
+		Employee employee = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_employee where "
+					+ "bankapplication.t_employee.employee_login = ? and bankapplication.t_employee.employee_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				employee = new Employee();
+				employee.setEmployeeId(resultSet.getInt("employee_id"));
+				employee.setEmployeeName(resultSet.getString("employee_name"));
+				employee.setEmployeeEmail(resultSet.getString("employee_email"));
+				employee.setEmployeeUsername(resultSet.getString("employee_login"));
+				employee.setEmployeePassword(resultSet.getString("employee_password"));
+			} else {
+				log.warn("Wrong username or password!");
+				throw new BusinessException("No account found with this username and password!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return employee;
+	}
+	
+	@Override
+	public List<Transaction> viewTransactionTable() throws BusinessException{
+		List<Transaction> transactionList = new ArrayList<>();
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_transaction";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				Transaction transaction = new Transaction();
+				transaction.setTransactionId(resultSet.getInt("transaction_id"));
+				transaction.setFromAccount(resultSet.getInt("from_account"));
+				transaction.setToAccount(resultSet.getInt("to_account"));
+				transaction.setAmount(resultSet.getDouble("amount"));
+				transaction.setTime(resultSet.getDate("transaction_time"));
+				transaction.setApproved(resultSet.getString("approved"));
+				transactionList.add(transaction);
+			}
+			if (transactionList.size() == 0) {
+				throw new BusinessException("No transaction in database so far");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return transactionList;
+	}
+	
+	@Override
+	public void approveTransfer(Transaction transaction) throws BusinessException {
+		String approveSql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";
+		String transferSql = "update bankapplication.t_account set balance = ? where account_id = ?;";
+		
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			log.info("approving transaction....");
+			PreparedStatement ps_approve = connection.prepareStatement(approveSql);
+			ps_approve.setInt(1, transaction.getTransactionId());
+			ps_approve.executeUpdate();
+			log.info("getting your balance.....");
+			//get balance
+			double balance = this.getBalanceByAccountId(transaction.getToAccount());
+			log.info("Your old balance: " + balance);
+			balance = transaction.getAmount() + balance; //new balance value
+			log.info("Your new balance will be: " + balance);
+			log.info("adding funds to account");
+			// add funds to receiving account
+			// funds are automatically subtracted from sender when they transfer 
+			PreparedStatement ps_transfer = connection.prepareStatement(transferSql);
+			ps_transfer.setDouble(1, balance);  // add transfer amount to receiving acct balance
+			ps_transfer.setInt(2, transaction.getToAccount());
+			ps_transfer.executeUpdate();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+	}
+
+}
+
+----------------------------------- SOURCE END -------------------------------------
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.ui 4 2 2021-01-12 23:08:21.701
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.jdt.ui".
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.jdt.ui 4 0 2021-01-12 23:08:21.722
+!MESSAGE Error in JDT Core during reconcile
+!STACK 0
+java.lang.IllegalArgumentException
+	at org.eclipse.jdt.core.dom.ASTNode.setSourceRange(ASTNode.java:3105)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:738)
+	at org.eclipse.jdt.core.dom.ASTConverter.buildBodyDeclarations(ASTConverter.java:208)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:3302)
+	at org.eclipse.jdt.core.dom.ASTConverter.convert(ASTConverter.java:1513)
+	at org.eclipse.jdt.core.dom.AST.convertCompilationUnit(AST.java:449)
+	at org.eclipse.jdt.internal.core.CompilationUnit.buildStructure(CompilationUnit.java:200)
+	at org.eclipse.jdt.internal.core.Openable.generateInfos(Openable.java:268)
+	at org.eclipse.jdt.internal.core.JavaElement.openWhenClosed(JavaElement.java:596)
+	at org.eclipse.jdt.internal.core.CompilationUnit.makeConsistent(CompilationUnit.java:1141)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.makeConsistent(ReconcileWorkingCopyOperation.java:173)
+	at org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation.executeOperation(ReconcileWorkingCopyOperation.java:94)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.run(JavaModelOperation.java:736)
+	at org.eclipse.jdt.internal.core.JavaModelOperation.runOperation(JavaModelOperation.java:802)
+	at org.eclipse.jdt.internal.core.CompilationUnit.reconcile(CompilationUnit.java:1318)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:131)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.access$0(JavaReconcilingStrategy.java:113)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy$1.run(JavaReconcilingStrategy.java:93)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:45)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:90)
+	at org.eclipse.jdt.internal.ui.text.java.JavaReconcilingStrategy.reconcile(JavaReconcilingStrategy.java:157)
+	at org.eclipse.jdt.internal.ui.text.CompositeReconcilingStrategy.reconcile(CompositeReconcilingStrategy.java:94)
+	at org.eclipse.jdt.internal.ui.text.JavaCompositeReconcilingStrategy.reconcile(JavaCompositeReconcilingStrategy.java:107)
+	at org.eclipse.jface.text.reconciler.MonoReconciler.process(MonoReconciler.java:76)
+	at org.eclipse.jface.text.reconciler.AbstractReconciler$BackgroundThread.run(AbstractReconciler.java:210)
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:12:33.258
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:12:33.271
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:12:42.411
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:12:42.423
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:15:03.145
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:15:03.159
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:20:42.586
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:20:42.602
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.lsp4e 2 0 2021-01-12 23:23:21.759
+!MESSAGE Javadoc unavailable. Failed to obtain it.
+!STACK 0
+java.lang.InterruptedException
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:385)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2086)
+	at org.eclipse.lsp4e.jdt.LSJavaHoverProvider.getHoverInfo2(LSJavaHoverProvider.java:70)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:163)
+	at org.eclipse.jdt.internal.ui.text.java.hover.BestMatchHover.getHoverInfo2(BestMatchHover.java:130)
+	at org.eclipse.jdt.internal.ui.text.java.hover.JavaEditorTextHoverProxy.getHoverInfo2(JavaEditorTextHoverProxy.java:89)
+	at org.eclipse.jface.text.TextViewerHoverManager$1.run(TextViewerHoverManager.java:155)
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:23:48.994
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:23:49.008
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:36:03.050
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+
+!ENTRY org.eclipse.m2e.logback.appender 2 0 2021-01-12 23:36:03.063
+!MESSAGE Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
