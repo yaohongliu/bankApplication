@@ -22,27 +22,27 @@ public class Transaction {
 		this.time = time;
 	}
 
-	public int getfromAccount() {
+	public int getFromAccount() {
 		return fromAccount;
 	}
 
-	public void setfromAccount(int fromAccount) {
+	public void setFromAccount(int fromAccount) {
 		this.fromAccount = fromAccount;
 	}
 
-	public int gettoAccount() {
+	public int getToAccount() {
 		return toAccount;
 	}
 
-	public void settoAccount(int toAccount) {
+	public void setToAccount(int toAccount) {
 		this.toAccount = toAccount;
 	}
 
-	public int gettransactionId() {
+	public int getTransactionId() {
 		return transactionId;
 	}
 
-	public void settransactionId(int transactionId) {
+	public void setTransactionId(int transactionId) {
 		this.transactionId = transactionId;
 	}
 
@@ -64,7 +64,6 @@ public class Transaction {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return "Transaction [ID = " + transactionId + ", Amount = " + amount + ", From Account: " + fromAccount
 				+ " to Account: " + toAccount + " at: " + time + " ]";
 	}

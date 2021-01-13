@@ -88,7 +88,8 @@ public class CustomerAccount {
 
 	@Override
 	public String toString() {
-		 return "Customer "+customerId+" Name: "+name+", acount ID: "+accountId+", balance: "+balance;
+		 return "Customer Name: "+name+ ", Customer ID: " + customerId+", Email: "+email+", DOB: "+dob
+				 +"\nAcount ID: "+accountId+ ", Create date: "+ createDate+ ", Balance: "+balance;
 	}
 	
 	/**

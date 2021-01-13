@@ -22,11 +22,11 @@ public class Employee {
 		this.employeePassword = employeePassword;
 	}
 
-	public int getemployeeId() {
+	public int getEmployeeId() {
 		return employeeId;
 	}
 
-	public void setemployeeId(int employeeId) {
+	public void setEmployeeId(int employeeId) {
 		this.employeeId = employeeId;
 	}
 
@@ -34,31 +34,31 @@ public class Employee {
 		return employeeName;
 	}
 
-	public void setemployeeName(String employeeName) {
+	public void setEmployeeName(String employeeName) {
 		this.employeeName = employeeName;
 	}
 
-	public String getemployeeEmail() {
+	public String getEmployeeEmail() {
 		return employeeEmail;
 	}
 
-	public void setemployeeEmail(String employeeEmail) {
+	public void setEmployeeEmail(String employeeEmail) {
 		this.employeeEmail = employeeEmail;
 	}
 
-	public String getemployeeUserName() {
+	public String getemployeeUsername() {
 		return employeeUserName;
 	}
 
-	public void setemployeeUserName(String employeeUserName) {
+	public void setEmployeeUsername(String employeeUserName) {
 		this.employeeUserName = employeeUserName;
 	}
 
-	public String getemployeePassword() {
+	public String getEmployeePassword() {
 		return employeePassword;
 	}
 
-	public void setemployeePassword(String employeePassword) {
+	public void setEmployeePassword(String employeePassword) {
 		this.employeePassword = employeePassword;
 	}
 

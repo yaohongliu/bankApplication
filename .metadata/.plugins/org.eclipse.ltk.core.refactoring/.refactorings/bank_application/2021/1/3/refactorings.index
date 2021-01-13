@@ -21,3 +21,6 @@
 1610491751084	Extract method 'obtainValidPassword'
 1610492844396	Delete elements
 1610497666258	Extract method 'displayEmployeeMenu'
+1610502524260	Extract method 'handleCustomer'
+1610502572241	Extract method 'handleEmployee'
+1610504982608	Extract method 'approveCustomerApplication'

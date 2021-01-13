@@ -21,11 +21,10 @@ import com.bank.model.Employee;
 import com.bank.model.Transaction;
 import com.bank.service.dao.BankServiceDAO;
 
-
 public class BankServiceDAOImpl implements BankServiceDAO {
 
 	private static Logger log = Logger.getLogger(BankServicesMain.class);
-	
+
 	@Override
 	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
 		List<CustomerAccount> customerList = new ArrayList<>();
@@ -117,32 +116,25 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	}
 
 	@Override
-	public CustomerAccount getBalanceByEmail(String email) throws BusinessException {
-		CustomerAccount account = null;
+	public double getBalanceByCustomerId(int customerId) throws BusinessException {
+		double balance;
 
 		try (Connection connection = PostgresqlConnection.getConnection()) {
-			String sql = "select balance from bankapplication.t_account where customer_email = ?;";
+			String sql = "select balance from bankapplication.t_account where customer_id = ?;";
 
 			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setString(1, email);
+			ps.setInt(1, customerId);
 			ResultSet resultSet = ps.executeQuery();
 
 			if (resultSet.next()) {
-				account = new CustomerAccount();
-				// account.setAccount_id(resultSet.getInt("account_id"));
-				// account.setCustomer_id(resultSet.getInt("customer_id"));
-				account.setBalance(resultSet.getDouble("balance"));
-				// account.setCreate_date(resultSet.getString("create_date"));
-				// account.setCustomer_name(resultSet.getString("customer_name"));
-				// account.setApproved(resultSet.getString("approved"));
-				account.setEmail(email);
+				balance = resultSet.getDouble("balance");
 			} else {
-				throw new BusinessException("No account found with this email: " + email);
+				throw new BusinessException("No account found with this ID: " + customerId);
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");
 		}
-		return account;
+		return balance;
 	}
 
 	@Override
@@ -167,7 +159,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				account.setName(resultSet.getString("customer_name"));
 				account.setApproved(resultSet.getString("approved"));
 			} else {
-				throw new BusinessException("No account found with this email");
+				throw new BusinessException("No account found with this email!");
 			}
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");
@@ -176,7 +168,54 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		return account;
 	}
 	
+	@Override
+	public CustomerAccount getCustomerById(int customerId) throws BusinessException {
+		CustomerAccount account = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_customer inner join bankapplication.t_account on "
+					+ "(bankapplication.t_customer.customer_id = bankapplication.t_account.customer_id) where "
+					+ "bankapplication.t_customer.customer_id = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				account = new CustomerAccount();
+				account.setAccountId(resultSet.getInt("account_id"));
+				account.setCustomerId(resultSet.getInt("customer_id"));
+				account.setBalance(resultSet.getDouble("balance"));
+				account.setCreateDate(resultSet.getString("create_date"));
+				account.setName(resultSet.getString("customer_name"));
+				account.setApproved(resultSet.getString("approved"));
+			} else {
+				throw new BusinessException("No account found with this ID");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return account;
+	}
 	
+	@Override
+	public void approveAccount(int customerId) throws BusinessException {
+		String sql = "update bankapplication.t_account set approved = true where customer_id = ?;";
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, customerId);
+			ps.execute();
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		
+	}
+
+	/**
+	 * For user log-in
+	 */
+	@Override
 	public CustomerAccount getCustomerByUsernameAndPassword(String username, String password) throws BusinessException {
 		CustomerAccount account = null;
 
@@ -197,6 +236,8 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				account.setBalance(resultSet.getDouble("balance"));
 				account.setCreateDate(resultSet.getString("create_date"));
 				account.setName(resultSet.getString("customer_name"));
+				account.setEmail(resultSet.getString("customer_email"));
+				account.setDob(resultSet.getString("dob"));
 				account.setApproved(resultSet.getString("approved"));
 			} else {
 				log.warn("Wrong username or password!");
@@ -210,16 +251,15 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	}
 
 	@Override
-	public void withdraw(double amount, String email) throws BusinessException {
-		CustomerAccount account = getCustomerByEmail(email);
-		System.out.println("Customer id: " + account.getCustomerId());
-		System.out.println("Status: " + account.getApproved());
-		if (account.getApproved().equals("t")&& account.getBalance()>= amount) {
+	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
+		log.info("Customer id: " + customer.getCustomerId());
+		log.info("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t") && customer.getBalance() >= amount) {
 			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
 			try (Connection connection = PostgresqlConnection.getConnection()) {
 				PreparedStatement ps = connection.prepareStatement(sql);
-				ps.setDouble(1, account.getBalance() - amount);
-				ps.setInt(2, account.getCustomerId());
+				ps.setDouble(1, customer.getBalance() - amount);
+				ps.setInt(2, customer.getCustomerId());
 				ps.executeUpdate();
 
 			} catch (ClassNotFoundException | SQLException e) {
@@ -227,9 +267,66 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			}
 		} else {
 			log.warn("Your account does not have enough balance to withdraw!");
-			throw new BusinessException("Your account is not yet approved!\n Transaction rejected: No enough Balance");
+			throw new BusinessException("Transaction rejected: No enough Balance");
 		}
 
+	}
+
+	@Override
+	public Employee employeeLogin(String username, String password) throws BusinessException {
+		Employee employee = null;
+
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_employee where "
+					+ "bankapplication.t_employee.employee_login = ? and bankapplication.t_employee.employee_password = ?;";
+
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			ResultSet resultSet = ps.executeQuery();
+			if (resultSet.next()) {
+				employee = new Employee();
+				employee.setEmployeeId(resultSet.getInt("employee_id"));
+				employee.setEmployeeName(resultSet.getString("employee_name"));
+				employee.setEmployeeEmail(resultSet.getString("employee_email"));
+				employee.setEmployeeUsername(resultSet.getString("employee_login"));
+				employee.setEmployeePassword(resultSet.getString("employee_password"));
+			} else {
+				log.warn("Wrong username or password!");
+				throw new BusinessException("No account found with this username and password!");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+
+		return employee;
+	}
+	@Override
+	public List<Transaction> viewTransactionTable() throws BusinessException{
+		List<Transaction> transactionList = new ArrayList<>();
+		try (Connection connection = PostgresqlConnection.getConnection()) {
+			String sql = "select * from bankapplication.t_transaction";
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				Transaction transaction = new Transaction();
+				transaction.setTransactionId(resultSet.getInt("transaction_id"));
+				transaction.setFromAccount(resultSet.getInt("from_account"));
+				transaction.setToAccount(resultSet.getInt("to_account"));
+				transaction.setAmount(resultSet.getDouble("amount"));
+				transaction.setTime(resultSet.getDate("transaction_time"));
+				transactionList.add(transaction);
+			}
+			if (transactionList.size() == 0) {
+				throw new BusinessException("No transaction in database so far");
+			}
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException("Internal error occured contact SYSADMIN ");
+		}
+		return transactionList;
+		
+		
 	}
 
 }
