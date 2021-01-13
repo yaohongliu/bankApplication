@@ -111,8 +111,8 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
 						+ "values (default, ?, ?, ?, ?::date, false);";
 				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
-				transactionPreparedStatement.setInt(1, customer.getAccountId());
-				transactionPreparedStatement.setDouble(2, customer.getAccountId());
+				transactionPreparedStatement.setInt(1, customer.getCustomerId());
+				transactionPreparedStatement.setDouble(2, customer.getCustomerId());
 				transactionPreparedStatement.setDouble(3, amount);
 				transactionPreparedStatement.setString(4, date.toString());
 				transactionPreparedStatement.executeUpdate();
@@ -123,38 +123,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		} else {
 			throw new BusinessException("Your account is not yet approved!");
 		}
-	}
-	
-	@Override
-	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
-		log.info("Customer id: " + customer.getCustomerId());
-		log.info("Status: " + customer.getApproved());
-		if (customer.getApproved().equals("t") && customer.getBalance() >= amount) {
-			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
-			try (Connection connection = PostgresqlConnection.getConnection()) {
-				PreparedStatement ps = connection.prepareStatement(sql);
-				ps.setDouble(1, customer.getBalance() - amount);
-				ps.setInt(2, customer.getCustomerId());
-				ps.executeUpdate();
-				
-				Date date = new Date();
-				String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
-						+ "values (default, ?, ?, ?, ?::date, false);";
-				PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
-				transactionPreparedStatement.setInt(1, customer.getAccountId());
-				transactionPreparedStatement.setDouble(2, customer.getAccountId());
-				transactionPreparedStatement.setDouble(3, -amount);
-				transactionPreparedStatement.setString(4, date.toString());
-				transactionPreparedStatement.executeUpdate();
-
-			} catch (ClassNotFoundException | SQLException e) {
-				throw new BusinessException("Internal error occured contact SYSADMIN ");
-			}
-		} else {
-			log.warn("Your account does not have enough balance to withdraw!");
-			throw new BusinessException("Transaction rejected: No enough Balance");
-		}
-
+		
+		
+		
 	}
 
 	@Override
@@ -314,7 +285,27 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		return account;
 	}
 
-	
+	@Override
+	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
+		log.info("Customer id: " + customer.getCustomerId());
+		log.info("Status: " + customer.getApproved());
+		if (customer.getApproved().equals("t") && customer.getBalance() >= amount) {
+			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
+			try (Connection connection = PostgresqlConnection.getConnection()) {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setDouble(1, customer.getBalance() - amount);
+				ps.setInt(2, customer.getCustomerId());
+				ps.executeUpdate();
+
+			} catch (ClassNotFoundException | SQLException e) {
+				throw new BusinessException("Internal error occured contact SYSADMIN ");
+			}
+		} else {
+			log.warn("Your account does not have enough balance to withdraw!");
+			throw new BusinessException("Transaction rejected: No enough Balance");
+		}
+
+	}
 
 	@Override
 	public Employee employeeLogin(String username, String password) throws BusinessException {
