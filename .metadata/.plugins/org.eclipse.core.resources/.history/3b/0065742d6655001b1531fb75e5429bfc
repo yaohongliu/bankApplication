@@ -54,11 +54,7 @@ public class BankServicesMain {
 				break;
 		}
 	} // end main
-	/**
-	 * To process employee choices
-	 * @param sc
-	 * @param employeeChoice
-	 */
+
 	public static void handleEmployee(Scanner sc, int employeeChoice) {
 		do {
 			displayEmployeeMenu();

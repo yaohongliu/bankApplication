@@ -1,6 +1,5 @@
 package com.bank.service.dao;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import com.bank.exception.BusinessException;
@@ -35,7 +34,5 @@ public interface BankServiceDAO {
 	public void approveTransfer(Transaction transaction) throws BusinessException;
 	
 	public double getBalanceByAccountId(int accountId) throws BusinessException;
-	
-	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws ClassNotFoundException, SQLException;
 
 }

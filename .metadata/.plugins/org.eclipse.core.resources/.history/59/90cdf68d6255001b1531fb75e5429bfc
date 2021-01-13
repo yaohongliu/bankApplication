@@ -24,7 +24,7 @@ import com.bank.service.dao.BankServiceDAO;
 public class BankServiceDAOImpl implements BankServiceDAO {
 
 	private static Logger log = Logger.getLogger(BankServicesMain.class);
-/**
+/*
  * for the employee to check all the customers information
  */
 	@Override
@@ -53,11 +53,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		return customerList;
 
 	}
-/**
+/*
  * create a customer bank account in database
  * @param customer
- * @throws SQLException 
- * @throws ClassNotFoundException
  */
 	@Override
 	public int createAccount(CustomerAccount customer) throws BusinessException {
@@ -101,12 +99,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		}
 		return n;
 	}
-/**
+/*
  * for customer to deposit and update their account balance
- * @param amount
- * @param customer
- * @throws SQLException 
- * @throws ClassNotFoundException
+ * @param amount,customer
  */
 	@Override
 	public void deposit(double amount, CustomerAccount customer) throws BusinessException {
@@ -137,12 +132,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			throw new BusinessException("Your account is not yet approved!");
 		}
 	}
-	/**
+	/*
 	 * for customer to withdraw money and update their bank account balance
-	 * @param amount
-	 * @param customer
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
+	 * @param amount, customer
 	 */
 	@Override
 	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
@@ -175,11 +167,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		}
 
 	}
-	/**
+	/*
 	 * for customer to view their bank account balance
 	 * @param customerId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public double getBalanceByCustomerId(int customerId) throws BusinessException {
@@ -203,11 +193,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		return balance;
 	}
 	
-	/**
+	/*
 	 * to get balance by searching account id
 	 * @param accountId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public double getBalanceByAccountId(int accountId) throws BusinessException {
@@ -231,11 +219,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		return balance;
 	}
 	
-	/**
+	/*
 	 * to get customer by searching email
 	 * @param email
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
@@ -267,12 +253,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 
 		return account;
 	}
-	/**
-	 * to get customer by searching customer ID
-	 * @param customerId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
-	 */
+	
 	@Override
 	public CustomerAccount getCustomerById(int customerId) throws BusinessException {
 		CustomerAccount account = null;
@@ -303,12 +284,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 
 		return account;
 	}
-	/**
-	 * For employee to approve a account which applied by customers
-	 * @param customerId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
-	 */
+	
 	@Override
 	public void approveAccount(int customerId) throws BusinessException {
 		String sql = "update bankapplication.t_account set approved = true where customer_id = ?;";
@@ -322,11 +298,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	}
 
 	/**
-	 * For user log-in and use the bank services
-	 * @param username
-	 * @param password
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
+	 * For user log-in
 	 */
 	@Override
 	public CustomerAccount getCustomerByUsernameAndPassword(String username, String password) throws BusinessException {
@@ -364,14 +336,16 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	}
 
 	/**
-	 * For customer to transfer money and update balance (subtract) and update account balance
+	 * get sender's balance
+	 * check if they have enough money
+	 * no? throw exception
+	 * yes? update balance (subtract) and update account tbl
 	 * @param customer
 	 * @param toAccount
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException 
 	 */
-	@Override
-	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws ClassNotFoundException, SQLException {
+	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws SQLException, ClassNotFoundException {
 		double balance;
 		try(Connection connection = PostgresqlConnection.getConnection()) {
 			balance = this.getBalanceByAccountId(customer.getAccountId());
@@ -403,13 +377,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			e.printStackTrace();
 		}
 	}
-/**
- * For employee to log-in and use the bank system
- * @param username
- * @param passward
- * @throws SQLException 
- * @throws ClassNotFoundException
- */
+
 	@Override
 	public Employee employeeLogin(String username, String password) throws BusinessException {
 		Employee employee = null;
@@ -440,9 +408,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 
 		return employee;
 	}
-	/**
-	 * For employee to view transaction history
-	 */
+	
 	@Override
 	public List<Transaction> viewTransactionTable() throws BusinessException{
 		List<Transaction> transactionList = new ArrayList<>();
@@ -468,10 +434,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		}
 		return transactionList;
 	}
-	/**
-	 * For customer to approve the transfer they received
-	 * @param trasaction
-	 */
+	
 	@Override
 	public void approveTransfer(Transaction transaction) throws BusinessException {
 		String approveSql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";

@@ -58,7 +58,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
  * @param customer
  * @throws SQLException 
  * @throws ClassNotFoundException
- */
+ * /
 	@Override
 	public int createAccount(CustomerAccount customer) throws BusinessException {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -208,7 +208,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * @param accountId
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException
-	 */
+	 *  */
 	@Override
 	public double getBalanceByAccountId(int accountId) throws BusinessException {
 		double balance;
@@ -308,7 +308,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * @param customerId
 	 * @throws SQLException 
 	 * @throws ClassNotFoundException
-	 */
+	 *  */
 	@Override
 	public void approveAccount(int customerId) throws BusinessException {
 		String sql = "update bankapplication.t_account set approved = true where customer_id = ?;";
@@ -371,7 +371,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * @throws ClassNotFoundException 
 	 */
 	@Override
-	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws ClassNotFoundException, SQLException {
+	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws SQLException, ClassNotFoundException {
 		double balance;
 		try(Connection connection = PostgresqlConnection.getConnection()) {
 			balance = this.getBalanceByAccountId(customer.getAccountId());

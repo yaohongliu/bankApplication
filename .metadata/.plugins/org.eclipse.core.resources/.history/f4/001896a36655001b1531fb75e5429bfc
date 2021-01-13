@@ -371,7 +371,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * @throws ClassNotFoundException 
 	 */
 	@Override
-	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws ClassNotFoundException, SQLException {
+	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws SQLException, ClassNotFoundException {
 		double balance;
 		try(Connection connection = PostgresqlConnection.getConnection()) {
 			balance = this.getBalanceByAccountId(customer.getAccountId());

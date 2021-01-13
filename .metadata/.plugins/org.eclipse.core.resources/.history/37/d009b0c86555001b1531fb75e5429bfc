@@ -54,11 +54,7 @@ public class BankServicesMain {
 				break;
 		}
 	} // end main
-	/**
-	 * To process employee choices
-	 * @param sc
-	 * @param employeeChoice
-	 */
+
 	public static void handleEmployee(Scanner sc, int employeeChoice) {
 		do {
 			displayEmployeeMenu();
@@ -91,10 +87,7 @@ public class BankServicesMain {
 			}
 		} while (employeeChoice != 4);
 	}
-	/**
-	 * Employee choice to approve customer applications
-	 * @param sc
-	 */
+
 	public static void approveCustomerApplication(Scanner sc) {
 
 		boolean continueProcessingAccounts = true;
@@ -125,9 +118,8 @@ public class BankServicesMain {
 	}
 
 	/**
-	 * Customer choice to approve transfers 
+	 * Customer approves transfers 
 	 * @param sc
-	 * @param customer
 	 */
 	public static void approveTransfers(Scanner sc, CustomerAccount customer) {
 		boolean continueApprovingTransfers = true;
@@ -152,15 +144,11 @@ public class BankServicesMain {
 				}
 			}
 		} catch (BusinessException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	/**
-	 * To process customer choices
-	 * @param sc
-	 * @param customerChoice
-	 * @param customer
-	 */
+
 	public static void handleCustomer(Scanner sc, int customerChoice, CustomerAccount customer) {
 		do {
 			displayCustomerMenu();
@@ -194,10 +182,7 @@ public class BankServicesMain {
 			}
 		} while (customerChoice != 6);
 	}
-	/**
-	 * Customer to log-in their account
-	 * @param sc
-	 */
+
 	private static CustomerAccount customerLogin(Scanner sc) {
 		CustomerAccount customer = null;
 
@@ -218,10 +203,7 @@ public class BankServicesMain {
 
 		return customer;
 	}
-	/**
-	 * Employee to log-in their account
-	 * @param sc
-	 */
+
 	private static Employee employeeLogin(Scanner sc) {
 		Employee employee = null;
 
@@ -244,9 +226,7 @@ public class BankServicesMain {
 
 	}
 
-	/**
-	 * Employee menu
-	 */
+//the employee menu
 	private static void displayEmployeeMenu() {
 		System.out.println(" Employee Menu");
 		System.out.println("----------------");
@@ -258,9 +238,8 @@ public class BankServicesMain {
 	}
 
 	/**
-	 * Customer choice to view their balance
+	 * 
 	 * @param sc Scanner
-	 * @param customer CustomerAccount
 	 */
 	private static void viewBalance(Scanner sc, CustomerAccount customer) {
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();

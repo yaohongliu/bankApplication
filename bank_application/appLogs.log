@@ -278,3 +278,17 @@
 {INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:26:31
 {INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:26:34
 {INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:26:34
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:28:10
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:28:10
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:28:13
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:28:13
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 10, Amount = 1300.0, From Account: 16 to Account: 15 at: 2021-01-12 ]    12-Jan-2021 Tuesday CST 23:28:13
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.main.BankServicesMain     approving transaction....    12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.main.BankServicesMain     getting your balance.....    12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.main.BankServicesMain     Your old balance: 100.0    12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.main.BankServicesMain     Your new balance will be: 1400.0    12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.main.BankServicesMain     adding funds to account    12-Jan-2021 Tuesday CST 23:28:18

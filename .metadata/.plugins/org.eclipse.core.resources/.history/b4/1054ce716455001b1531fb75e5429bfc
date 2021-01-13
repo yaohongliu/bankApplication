@@ -56,8 +56,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 /**
  * create a customer bank account in database
  * @param customer
- * @throws SQLException 
- * @throws ClassNotFoundException
  */
 	@Override
 	public int createAccount(CustomerAccount customer) throws BusinessException {
@@ -105,8 +103,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
  * for customer to deposit and update their account balance
  * @param amount
  * @param customer
- * @throws SQLException 
- * @throws ClassNotFoundException
  */
 	@Override
 	public void deposit(double amount, CustomerAccount customer) throws BusinessException {
@@ -141,8 +137,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * for customer to withdraw money and update their bank account balance
 	 * @param amount
 	 * @param customer
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public void withdraw(double amount, CustomerAccount customer) throws BusinessException {
@@ -178,8 +172,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	/**
 	 * for customer to view their bank account balance
 	 * @param customerId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public double getBalanceByCustomerId(int customerId) throws BusinessException {
@@ -206,8 +198,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	/**
 	 * to get balance by searching account id
 	 * @param accountId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public double getBalanceByAccountId(int accountId) throws BusinessException {
@@ -234,8 +224,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	/**
 	 * to get customer by searching email
 	 * @param email
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
@@ -270,8 +258,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	/**
 	 * to get customer by searching customer ID
 	 * @param customerId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public CustomerAccount getCustomerById(int customerId) throws BusinessException {
@@ -306,8 +292,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	/**
 	 * For employee to approve a account which applied by customers
 	 * @param customerId
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public void approveAccount(int customerId) throws BusinessException {
@@ -325,8 +309,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * For user log-in and use the bank services
 	 * @param username
 	 * @param password
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public CustomerAccount getCustomerByUsernameAndPassword(String username, String password) throws BusinessException {
@@ -371,7 +353,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	 * @throws ClassNotFoundException 
 	 */
 	@Override
-	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws ClassNotFoundException, SQLException {
+	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws SQLException, ClassNotFoundException {
 		double balance;
 		try(Connection connection = PostgresqlConnection.getConnection()) {
 			balance = this.getBalanceByAccountId(customer.getAccountId());
@@ -407,8 +389,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
  * For employee to log-in and use the bank system
  * @param username
  * @param passward
- * @throws SQLException 
- * @throws ClassNotFoundException
  */
 	@Override
 	public Employee employeeLogin(String username, String password) throws BusinessException {

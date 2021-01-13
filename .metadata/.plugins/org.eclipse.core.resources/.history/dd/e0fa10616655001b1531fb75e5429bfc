@@ -36,6 +36,6 @@ public interface BankServiceDAO {
 	
 	public double getBalanceByAccountId(int accountId) throws BusinessException;
 	
-	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws ClassNotFoundException, SQLException;
+	public void transferMoney(CustomerAccount customer, int toAccount, double amountToTransfer) throws SQLException, ClassNotFoundException;
 
 }
