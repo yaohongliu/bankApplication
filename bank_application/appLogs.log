@@ -292,3 +292,97 @@
 {INFO}   com.bank.main.BankServicesMain     Your old balance: 100.0    12-Jan-2021 Tuesday CST 23:28:18
 {INFO}   com.bank.main.BankServicesMain     Your new balance will be: 1400.0    12-Jan-2021 Tuesday CST 23:28:18
 {INFO}   com.bank.main.BankServicesMain     adding funds to account    12-Jan-2021 Tuesday CST 23:28:18
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:15:20
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:15:20
+{INFO}   com.bank.main.BankServicesMain     Your bank account has been created successfully!    13-Jan-2021 Wednesday CST 10:15:20
+{INFO}   com.bank.main.BankServicesMain     Your account is pending and must be approved before use. Goodbye!    13-Jan-2021 Wednesday CST 10:15:20
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:17:03
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:17:03
+{INFO}   com.bank.main.BankServicesMain     Customer id: 23    13-Jan-2021 Wednesday CST 10:17:22
+{INFO}   com.bank.main.BankServicesMain     Status: f    13-Jan-2021 Wednesday CST 10:17:22
+{WARN}   com.bank.main.BankServicesMain     Your account does not have enough balance to withdraw!    13-Jan-2021 Wednesday CST 10:17:22
+{INFO}   com.bank.main.BankServicesMain     Customer id: 23    13-Jan-2021 Wednesday CST 10:17:47
+{INFO}   com.bank.main.BankServicesMain     Status: f    13-Jan-2021 Wednesday CST 10:17:47
+{WARN}   com.bank.main.BankServicesMain     Your account does not have enough balance to withdraw!    13-Jan-2021 Wednesday CST 10:17:47
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:18:32
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:18:32
+{WARN}   com.bank.main.BankServicesMain     Wrong username or password!    13-Jan-2021 Wednesday CST 10:18:32
+{WARN}   com.bank.main.BankServicesMain     Invalid username or password!    13-Jan-2021 Wednesday CST 10:18:32
+{INFO}   com.bank.main.BankServicesMain     Approve Customer Bank Account Application....    13-Jan-2021 Wednesday CST 10:18:53
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:19:04
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:19:04
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:19:04
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:19:04
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:31:39
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:31:39
+{INFO}   com.bank.main.BankServicesMain     Approve Customer Bank Account Application....    13-Jan-2021 Wednesday CST 10:31:47
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:31:52
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:31:52
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:31:57
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:31:57
+{INFO}   com.bank.main.BankServicesMain     Account approved!    13-Jan-2021 Wednesday CST 10:31:57
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:32:28
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:32:28
+{INFO}   com.bank.main.BankServicesMain     View Accounts....    13-Jan-2021 Wednesday CST 10:32:48
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:32:51
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:32:51
+{INFO}   com.bank.main.BankServicesMain     n    13-Jan-2021 Wednesday CST 10:35:43
+{INFO}   com.bank.main.BankServicesMain     View Transaction History....    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 2, Amount = 400.0, From Account: 13 to Account: 13 at: 2021-01-11 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 4, Amount = 100.0, From Account: 15 to Account: 15 at: 2021-01-12 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 5, Amount = 30.0, From Account: 16 to Account: 16 at: 2021-01-12 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 6, Amount = 100.0, From Account: 17 to Account: 17 at: 2021-01-12 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 1, Amount = 300.0, From Account: 13 to Account: 12 at: 2020-02-02 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 7, Amount = 100.0, From Account: 17 to Account: 17 at: 2021-01-12 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 3, Amount = 500.0, From Account: 10 to Account: 16 at: 2020-11-22 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 8, Amount = 5000.0, From Account: 11 to Account: 11 at: 2021-01-12 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 9, Amount = -1000.0, From Account: 11 to Account: 11 at: 2021-01-12 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 10, Amount = 1300.0, From Account: 16 to Account: 15 at: 2021-01-12 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.main.BankServicesMain     Transaction [ID = 11, Amount = 500.0, From Account: 18 to Account: 18 at: 2021-01-13 ]    13-Jan-2021 Wednesday CST 10:35:48
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:00:52
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:00:52
+{INFO}   com.bank.main.BankServicesMain     Your bank account has been created successfully!    13-Jan-2021 Wednesday CST 11:00:52
+{INFO}   com.bank.main.BankServicesMain     Your account is pending and must be approved before use. Goodbye!    13-Jan-2021 Wednesday CST 11:00:52
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:05:09
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:05:09
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:05:32
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:05:32
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:05:32
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:05:32
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:08:29
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:08:29
+{INFO}   com.bank.main.BankServicesMain     Customer id: 23    13-Jan-2021 Wednesday CST 11:08:33
+{INFO}   com.bank.main.BankServicesMain     Status: t    13-Jan-2021 Wednesday CST 11:08:33
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:08:33
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:08:33
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:08:44
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:08:44
+{INFO}   com.bank.main.BankServicesMain     Your balance is: 440.0    13-Jan-2021 Wednesday CST 11:08:44
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:09:13
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:09:13
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:09:13
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:09:13
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:11:43
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:11:43
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:11:43
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:11:43
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:32:43
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:32:43
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:33:23
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:33:23
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:33:23
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:33:23
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:34:49
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:34:49
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:34:56
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:34:56
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:34:56
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:34:56
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:36:01
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:36:01
+{INFO}   com.bank.main.BankServicesMain     View Accounts....    13-Jan-2021 Wednesday CST 11:36:04
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    13-Jan-2021 Wednesday CST 11:36:15
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     13-Jan-2021 Wednesday CST 11:36:15
+{INFO}   com.bank.main.BankServicesMain     n    13-Jan-2021 Wednesday CST 11:36:19

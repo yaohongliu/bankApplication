@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="transactionId"/>
+		<item key="selection" value="approve"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="approve"/>
+			<item value="setApproved"/>
+			<item value="transaction."/>
+			<item value="getBalanceBy"/>
+			<item value="t_transact"/>
+			<item value="choice"/>
 			<item value="transaction_id"/>
 			<item value="to_account"/>
 			<item value="from_account"/>
@@ -17,12 +23,6 @@
 			<item value="employee_name"/>
 			<item value="employee_id"/>
 			<item value="create_date"/>
-			<item value="customer_password"/>
-			<item value="customer_login"/>
-			<item value="customer_email"/>
-			<item value="customer_name"/>
-			<item value="account_id"/>
-			<item value="customer_id"/>
 		</list>
 		<list key="replacehistory">
 			<item value="transactionId"/>

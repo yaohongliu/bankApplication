@@ -26,7 +26,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	private static Logger log = Logger.getLogger(BankServicesMain.class);
 /**
  * for the employee to check all the customers information
- */
+ 
 	@Override
 	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
 		List<CustomerAccount> customerList = new ArrayList<>();
@@ -52,7 +52,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		}
 		return customerList;
 
-	}
+	}*/
 /**
  * create a customer bank account in database
  * @param customer
@@ -293,6 +293,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				account.setBalance(resultSet.getDouble("balance"));
 				account.setCreateDate(resultSet.getString("create_date"));
 				account.setName(resultSet.getString("customer_name"));
+				account.setEmail(resultSet.getString("customer_email"));
+				account.setDob(resultSet.getString("dob"));
+
 				account.setApproved(resultSet.getString("approved"));
 			} else {
 				throw new BusinessException("No account found with this ID");
@@ -316,6 +319,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			PreparedStatement ps = connection.prepareStatement(sql);
 			ps.setInt(1, customerId);
 			ps.execute();
+			log.info("Account approved!");
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");
 		}
@@ -393,7 +397,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
 					+ "values (default, ?, ?, ?, ?::date, false);";
 			PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
-			transactionPreparedStatement.setInt(1, customer.getCustomerId());
+			transactionPreparedStatement.setInt(1, customer.getAccountId());
 			transactionPreparedStatement.setDouble(2, toAccount);
 			transactionPreparedStatement.setDouble(3, amountToTransfer);
 			transactionPreparedStatement.setString(4, date.toString());

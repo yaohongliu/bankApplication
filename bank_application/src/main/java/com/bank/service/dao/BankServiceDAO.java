@@ -14,7 +14,7 @@ public interface BankServiceDAO {
 	
 	public Employee employeeLogin(String username, String password) throws BusinessException;
 
-	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException;
+	//public List<CustomerAccount> getAllCustomerInfo() throws BusinessException;
 
 	public CustomerAccount getCustomerByEmail(String email) throws BusinessException;
 	

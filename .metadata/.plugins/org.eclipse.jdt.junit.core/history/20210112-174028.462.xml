@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="BankServicesMainTest" project="bank_application" tests="1" started="1" failures="0" errors="0" ignored="0">
-  <testsuite name="com.bank.main.BankServicesMainTest" time="0.098" displayname="BankServicesMainTest" uniqueid="[engine:junit-jupiter]/[class:com.bank.main.BankServicesMainTest]">
-    <testcase name="isBalancePositiveTest_False" classname="com.bank.main.BankServicesMainTest" time="0.098" displayname="isBalancePositiveTest_False()" uniqueid="[engine:junit-jupiter]/[class:com.bank.main.BankServicesMainTest]/[method:isBalancePositiveTest_False()]"/>
-  </testsuite>
-</testrun>

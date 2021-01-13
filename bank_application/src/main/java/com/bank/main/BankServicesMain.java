@@ -54,6 +54,45 @@ public class BankServicesMain {
 				break;
 		}
 	} // end main
+	
+	/**
+	 * To process customer choices
+	 * @param sc
+	 * @param customerChoice
+	 * @param customer
+	 */
+	public static void handleCustomer(Scanner sc, int customerChoice, CustomerAccount customer) {
+		do {
+			displayCustomerMenu();
+			try {
+				customerChoice = Integer.parseInt(sc.nextLine());// if you enter special symbols
+
+			} catch (NumberFormatException e) {
+
+			}
+			switch (customerChoice) {
+			case 1: // withdraw
+				withdraw(sc, customer);
+				break;
+			case 2: // deposit
+				deposit(sc, customer);
+				break;
+			case 3: // view bal
+				viewBalance(sc, customer);
+				break;
+			case 4: // transfer
+				transferFunds(sc, customer);
+				break;
+			case 5:
+				approveTransfers(sc, customer);
+				break;
+			case 6:
+				System.out.println("Exit....");
+				break;
+			}
+		} while (customerChoice != 6);
+	}
+	
 	/**
 	 * To process employee choices
 	 * @param sc
@@ -91,6 +130,86 @@ public class BankServicesMain {
 			}
 		} while (employeeChoice != 4);
 	}
+	
+	/**
+	 * Customer menu 
+	 */
+	private static void displayCustomerMenu() {
+		System.out.println(" Customer Menu");
+		System.out.println("---------------");
+		System.out.println("1) Withdraw");
+		System.out.println("2) Deposit");
+		System.out.println("3) View Balance");
+		System.out.println("4) Transfer Money");
+		System.out.println("5) Accept Money");
+		System.out.println("6) Exit");
+		System.out.println("Please enter appropriate choice between 1-6");
+	}
+	
+	/**
+	 * Employee menu
+	 */
+	private static void displayEmployeeMenu() {
+		System.out.println(" Employee Menu");
+		System.out.println("----------------");
+		System.out.println("1) Approve Customer Bank Account");
+		System.out.println("2) View Customer Bank Account");
+		System.out.println("3) View Transaction History");
+		System.out.println("4) Exit");
+		System.out.println("Please enter appropriate choice between 1-4");
+	}
+	
+	/**
+	 * Customer to log-in their account
+	 * @param sc
+	 */
+	private static CustomerAccount customerLogin(Scanner sc) {
+		CustomerAccount customer = null;
+
+		System.out.println("Customer Log-in (use your username / password).");
+		System.out.println("Username: ");
+		String username = sc.nextLine();
+		System.out.println("Password: ");
+		String password = sc.nextLine();
+
+		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+		try {
+			customer = bankDAO.getCustomerByUsernameAndPassword(username, password);
+		} catch (BusinessException e) {
+			log.warn("Invalid username or password!");
+			System.out.println("Account cannot be found!");
+			e.printStackTrace();
+		}
+
+		return customer;
+	}
+	
+	/**
+	 * Employee to log-in their account
+	 * @param sc
+	 */
+	private static Employee employeeLogin(Scanner sc) {
+		Employee employee = null;
+
+		System.out.println("Employee Log-in (use your username / password).");
+		System.out.println("Username: ");
+		String username = sc.nextLine();
+		System.out.println("Password: ");
+		String password = sc.nextLine();
+
+		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+		try {
+			employee = bankDAO.employeeLogin(username, password);
+		} catch (BusinessException e) {
+			log.warn("Invalid username or password!");
+			System.out.println("Account cannot be found!");
+			e.printStackTrace();
+		}
+
+		return employee;
+
+	}
+	
 	/**
 	 * Employee choice to approve customer applications
 	 * @param sc
@@ -107,8 +226,13 @@ public class BankServicesMain {
 			int customerId = Integer.parseInt(sc.nextLine());
 			try {
 				customer = bankServiceDaoImpl.getCustomerById(customerId);
-				bankServiceDaoImpl.approveAccount(customerId);
-				System.out.println("Account approved.");
+				System.out.println("Approve above application (Y/n)?");
+				String choice = sc.nextLine();
+				
+				if (choice.equals("Y")) {
+					bankServiceDaoImpl.approveAccount(customerId);
+					System.out.println("Account approved.");
+				}
 			} catch (BusinessException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -146,7 +270,7 @@ public class BankServicesMain {
 					System.out.println("Approve above transfer (Y/n)?");
 					String choice = sc.nextLine();
 					
-					if (choice.equals("Y")) {
+					if (choice.equals("Y")||choice.equals("y")) {
 						bankServiceDaoImpl.approveTransfer(transaction);
 					}
 				}
@@ -154,107 +278,6 @@ public class BankServicesMain {
 		} catch (BusinessException e) {
 			e.printStackTrace();
 		}
-	}
-	/**
-	 * To process customer choices
-	 * @param sc
-	 * @param customerChoice
-	 * @param customer
-	 */
-	public static void handleCustomer(Scanner sc, int customerChoice, CustomerAccount customer) {
-		do {
-			displayCustomerMenu();
-			try {
-				customerChoice = Integer.parseInt(sc.nextLine());// if you enter special symbols
-
-			} catch (NumberFormatException e) {
-
-			}
-			switch (customerChoice) {
-			case 1: // withdraw
-				withdraw(sc, customer);
-				break;
-			case 2: // deposit
-				deposit(sc, customer);
-				break;
-			case 3: // view bal
-				viewBalance(sc, customer);
-				break;
-			case 4: // transfer
-				System.out.println("Transfer money....");
-				transferFunds(sc, customer);
-				break;
-			case 5:
-				System.out.println("Accept money....");
-				approveTransfers(sc, customer);
-				break;
-			case 6:
-				System.out.println("Exit....");
-				break;
-			}
-		} while (customerChoice != 6);
-	}
-	/**
-	 * Customer to log-in their account
-	 * @param sc
-	 */
-	private static CustomerAccount customerLogin(Scanner sc) {
-		CustomerAccount customer = null;
-
-		System.out.println("Customer Log-in (use your username / password).");
-		System.out.println("Username: ");
-		String username = sc.nextLine();
-		System.out.println("Password: ");
-		String password = sc.nextLine();
-
-		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
-		try {
-			customer = bankDAO.getCustomerByUsernameAndPassword(username, password);
-		} catch (BusinessException e) {
-			log.warn("Invalid username or password!");
-			System.out.println("Account cannot be found!");
-			e.printStackTrace();
-		}
-
-		return customer;
-	}
-	/**
-	 * Employee to log-in their account
-	 * @param sc
-	 */
-	private static Employee employeeLogin(Scanner sc) {
-		Employee employee = null;
-
-		System.out.println("Employee Log-in (use your username / password).");
-		System.out.println("Username: ");
-		String username = sc.nextLine();
-		System.out.println("Password: ");
-		String password = sc.nextLine();
-
-		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
-		try {
-			employee = bankDAO.employeeLogin(username, password);
-		} catch (BusinessException e) {
-			log.warn("Invalid username or password!");
-			System.out.println("Account cannot be found!");
-			e.printStackTrace();
-		}
-
-		return employee;
-
-	}
-
-	/**
-	 * Employee menu
-	 */
-	private static void displayEmployeeMenu() {
-		System.out.println(" Employee Menu");
-		System.out.println("----------------");
-		System.out.println("1) Approve Customer Bank Account");
-		System.out.println("2) View Customer Bank Account");
-		System.out.println("3) View Transaction History");
-		System.out.println("4) Exit");
-		System.out.println("Please enter appropriate choice between 1-4");
 	}
 
 	/**
@@ -337,27 +360,13 @@ public class BankServicesMain {
 
 		} while (continueViewingAccounts);
 	}
-	/**
-	 * Customer menu 
-	 */
-	private static void displayCustomerMenu() {
-		System.out.println(" Customer Menu");
-		System.out.println("---------------");
-		System.out.println("1) Withdraw");
-		System.out.println("2) Deposit");
-		System.out.println("3) View Balance");
-		System.out.println("4) Transfer Money");
-		System.out.println("5) Accept Money");
-		System.out.println("6) Exit");
-		System.out.println("Please enter appropriate choice between 1-6");
-	}
 
 	/**
 	 * User choice to create a customer bank account
 	 * @param sc
 	 */
 	private static void createBankAccount(Scanner sc) {
-		System.out.println("Applying for a bank account....");
+		System.out.println("Applying for a customer account....");
 		CustomerAccount newCustomer = new CustomerAccount();
 
 		// prompt for name
