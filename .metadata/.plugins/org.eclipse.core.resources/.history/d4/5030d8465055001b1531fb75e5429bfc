@@ -38,20 +38,20 @@ public class BankServicesMain {
 		int customerChoice = 0, employeeChoice = 0;
 
 		switch (selection) {
-			case 1:
-				CustomerAccount customer = customerLogin(sc);
-				handleCustomer(sc, customerChoice, customer);
-				break;
-			case 2:
-				Employee employee = employeeLogin(sc);
-				handleEmployee(sc, employeeChoice);
-				break;
-			case 3:
-				createBankAccount(sc);
-				break;
-			default:
-				System.out.println("Unrecognized choice");
-				break;
+		case 1:
+			CustomerAccount customer = customerLogin(sc);
+			handleCustomer(sc, customerChoice, customer);
+			break;
+		case 2:
+			Employee employee = employeeLogin(sc);
+			handleEmployee(sc, employeeChoice);
+			break;
+		case 3:
+			createBankAccount(sc);
+			break;
+		default:
+			System.out.println("Unrecognized choice");
+			break;
 		}
 	} // end main
 
@@ -126,27 +126,36 @@ public class BankServicesMain {
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		List<Transaction> transactionList = null;
 		
-		try {
-			transactionList = bankServiceDaoImpl.viewTransactionTable();
-			
-			for (Transaction transaction : transactionList) {
-				if (transaction.getToAccount() == customer.getAccountId()
-						&& transaction.getFromAccount() != customer.getAccountId()
-						&& transaction.getApproved().equals("f")) {
-					log.info(transaction);
-					
-					System.out.println("Approve above transfer (Y/n)?");
-					String choice = sc.nextLine();
-					
-					if (choice.equals("Y")) {
-						bankServiceDaoImpl.approveTransfer(transaction);
+		do {
+			try {
+				transactionList = bankServiceDaoImpl.viewTransactionTable();
+				
+				for (Transaction transaction : transactionList) {
+					if (transaction.getToAccount() == customer.getAccountId()
+							&& transaction.getFromAccount() != customer.getAccountId()) {
+						log.info(transaction);
+						System.out.println("Approve above transfer (Y/n)?");
+						String choice = sc.nextLine();
+						
+						if (choice == "Y" || choice == "y") {
+							bankServiceDaoImpl.approveTransfer(transaction.getTransactionId());
+						}
 					}
 				}
+				
+			
+			} catch (BusinessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (BusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+			System.out.println("Continue processing transfers (Y/n)?");
+			String choice = sc.nextLine();
+
+			if (!choice.equals("Y")) {
+				continueApprovingTransfers = false;
+			}
+		} while (continueApprovingTransfers);
 	}
 
 	public static void handleCustomer(Scanner sc, int customerChoice, CustomerAccount customer) {
@@ -173,7 +182,6 @@ public class BankServicesMain {
 				break;
 			case 5:
 				System.out.println("Accept money....");
-				approveTransfers(sc, customer);
 				break;
 			case 6:
 				System.out.println("Exit....");

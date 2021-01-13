@@ -126,27 +126,38 @@ public class BankServicesMain {
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		List<Transaction> transactionList = null;
 		
-		try {
-			transactionList = bankServiceDaoImpl.viewTransactionTable();
-			
-			for (Transaction transaction : transactionList) {
-				if (transaction.getToAccount() == customer.getAccountId()
-						&& transaction.getFromAccount() != customer.getAccountId()
-						&& transaction.getApproved().equals("f")) {
-					log.info(transaction);
-					
-					System.out.println("Approve above transfer (Y/n)?");
-					String choice = sc.nextLine();
-					
-					if (choice.equals("Y")) {
-						bankServiceDaoImpl.approveTransfer(transaction);
+		do {
+			try {
+				transactionList = bankServiceDaoImpl.viewTransactionTable();
+				
+				for (Transaction transaction : transactionList) {
+					if (transaction.getToAccount() == customer.getAccountId()
+							&& transaction.getFromAccount() != customer.getAccountId()
+							&& transaction.getApproved().equals("f")) {
+						log.info(transaction);
+						
+						System.out.println("Approve above transfer (Y/n)?");
+						String choice = sc.nextLine();
+						
+						if (choice == "Y" || choice == "y") {
+							bankServiceDaoImpl.approveTransfer(transaction);
+						}
 					}
 				}
+				
+			
+			} catch (BusinessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (BusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+			System.out.println("Continue processing transfers (Y/n)?");
+			String choice = sc.nextLine();
+
+			if (!choice.equals("Y")) {
+				continueApprovingTransfers = false;
+			}
+		} while (continueApprovingTransfers);
 	}
 
 	public static void handleCustomer(Scanner sc, int customerChoice, CustomerAccount customer) {

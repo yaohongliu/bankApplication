@@ -32,31 +32,31 @@ public class BankServicesMain {
 		System.out.println("Enter 1 for Customer");
 		System.out.println("Enter 2 for Employee");
 		System.out.println("Enter 3 to create new customer account (one acct. per customer only)");
-
+		
 		selection = Integer.parseInt(sc.nextLine());
 
 		int customerChoice = 0, employeeChoice = 0;
-
-		switch (selection) {
-			case 1:
-				CustomerAccount customer = customerLogin(sc);
-				handleCustomer(sc, customerChoice, customer);
-				break;
-			case 2:
-				Employee employee = employeeLogin(sc);
-				handleEmployee(sc, employeeChoice);
-				break;
-			case 3:
-				createBankAccount(sc);
-				break;
-			default:
-				System.out.println("Unrecognized choice");
-				break;
-		}
+		
+			switch (selection) {
+				case 1:
+					CustomerAccount customer = customerLogin(sc);
+					handleCustomer(sc, customerChoice, customer);
+					break;
+				case 2:
+					Employee employee = employeeLogin(sc);
+					handleEmployee(sc, employeeChoice);
+					break; 
+				case 3: 
+					createBankAccount(sc);
+					break;
+				default:
+					System.out.println("Unrecognized choice");
+					break;
+			}
 	} // end main
 
 	public static void handleEmployee(Scanner sc, int employeeChoice) {
-		do {
+		do {	
 			displayEmployeeMenu();
 
 			try {
@@ -66,36 +66,36 @@ public class BankServicesMain {
 			}
 
 			switch (employeeChoice) {
-			case 1:
-				log.info("Approve Customer Bank Account Application....");
-				approveCustomerApplication(sc);
-				break;
-			case 2:
-				log.info("View Accounts....");
-				viewAccounts(sc);
-				break;
-			case 3:
-				log.info("View Transaction History....");
-				viewTransactionLog(sc);
-				break;
-			case 4:
-				System.out.println("Exit....");
-				break;
-			default:
-				System.out.println("Unrecognized choice");
-				break;
+				case 1:
+					log.info("Approve Customer Bank Account Application....");
+					approveCustomerApplication(sc);
+					break;
+				case 2:
+					log.info("View Accounts....");
+					viewAccounts(sc);
+					break;
+				case 3:
+					log.info("View Transaction History....");
+					viewTransactionLog(sc);
+					break;
+				case 4:
+					System.out.println("Exit....");
+					break;
+				default:
+					System.out.println("Unrecognized choice");
+					break;
 			}
 		} while (employeeChoice != 4);
 	}
 
 	public static void approveCustomerApplication(Scanner sc) {
-
+		
 		boolean continueProcessingAccounts = true;
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		CustomerAccount customer = null;
-
+		
 		do {
-
+		
 			System.out.println("Enter a customer ID to approve: ");
 			int customerId = Integer.parseInt(sc.nextLine());
 			try {
@@ -106,47 +106,15 @@ public class BankServicesMain {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			
 			System.out.println("Continue processing (Y/n)?");
 			String choice = sc.nextLine();
-
+			
 			if (!choice.equals("Y")) {
 				continueProcessingAccounts = false;
 			}
-
-		} while (continueProcessingAccounts);
-	}
-
-	/**
-	 * Customer approves transfers 
-	 * @param sc
-	 */
-	public static void approveTransfers(Scanner sc, CustomerAccount customer) {
-		boolean continueApprovingTransfers = true;
-		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
-		List<Transaction> transactionList = null;
-		
-		try {
-			transactionList = bankServiceDaoImpl.viewTransactionTable();
 			
-			for (Transaction transaction : transactionList) {
-				if (transaction.getToAccount() == customer.getAccountId()
-						&& transaction.getFromAccount() != customer.getAccountId()
-						&& transaction.getApproved().equals("f")) {
-					log.info(transaction);
-					
-					System.out.println("Approve above transfer (Y/n)?");
-					String choice = sc.nextLine();
-					
-					if (choice.equals("Y")) {
-						bankServiceDaoImpl.approveTransfer(transaction);
-					}
-				}
-			}
-		} catch (BusinessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} while (continueProcessingAccounts);
 	}
 
 	public static void handleCustomer(Scanner sc, int customerChoice, CustomerAccount customer) {
@@ -159,29 +127,28 @@ public class BankServicesMain {
 
 			}
 			switch (customerChoice) {
-			case 1: // withdraw
-				withdraw(sc, customer);
-				break;
-			case 2: // deposit
-				deposit(sc, customer);
-				break;
-			case 3: // view bal
-				viewBalance(sc, customer);
-				break;
-			case 4: // transfer
-				System.out.println("Transfer money....");
-				break;
-			case 5:
-				System.out.println("Accept money....");
-				approveTransfers(sc, customer);
-				break;
-			case 6:
-				System.out.println("Exit....");
-				break;
+				case 1: // withdraw
+					withdraw(sc, customer);
+					break;
+				case 2: // deposit
+					deposit(sc, customer);
+					break;
+				case 3: // view bal
+					viewBalance(sc, customer);
+					break;
+				case 4: // transfer
+					System.out.println("Transfer money....");
+					break;
+				case 5:
+					System.out.println("Accept money....");
+					break;
+				case 6:
+					System.out.println("Exit....");
+					break;
 			}
 		} while (customerChoice != 6);
 	}
-
+	
 	private static CustomerAccount customerLogin(Scanner sc) {
 		CustomerAccount customer = null;
 
@@ -202,27 +169,27 @@ public class BankServicesMain {
 
 		return customer;
 	}
+	
+private static Employee employeeLogin(Scanner sc) {
+	Employee employee = null;
 
-	private static Employee employeeLogin(Scanner sc) {
-		Employee employee = null;
+	System.out.println("Employee Log-in (use your username / password).");
+	System.out.println("Username: ");
+	String username = sc.nextLine();
+	System.out.println("Password: ");
+	String password = sc.nextLine();
 
-		System.out.println("Employee Log-in (use your username / password).");
-		System.out.println("Username: ");
-		String username = sc.nextLine();
-		System.out.println("Password: ");
-		String password = sc.nextLine();
+	BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
+	try {
+		employee = bankDAO.employeeLogin(username, password);
+	} catch (BusinessException e) {
+		log.warn("Invalid username or password!");
+		System.out.println("Account cannot be found!");
+		e.printStackTrace();
+	}
 
-		BankServiceDAOImpl bankDAO = new BankServiceDAOImpl();
-		try {
-			employee = bankDAO.employeeLogin(username, password);
-		} catch (BusinessException e) {
-			log.warn("Invalid username or password!");
-			System.out.println("Account cannot be found!");
-			e.printStackTrace();
-		}
-
-		return employee;
-
+	return employee;
+		
 	}
 
 //the employee menu
@@ -287,7 +254,7 @@ public class BankServicesMain {
 		boolean continueViewingAccounts = true;
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		CustomerAccount customer = null;
-
+		
 		do {
 			System.out.println("Enter a customer ID to view: ");
 			int customerId = Integer.parseInt(sc.nextLine());
@@ -298,14 +265,14 @@ public class BankServicesMain {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			
 			System.out.println("Continue viewing customer accounts (Y/n)?");
 			String choice = sc.nextLine();
 			log.info(choice);
 			if (!choice.equals("Y")) {
 				continueViewingAccounts = false;
 			}
-
+			
 		} while (continueViewingAccounts);
 	}
 
@@ -433,15 +400,16 @@ public class BankServicesMain {
 		BankServiceDAOImpl bankServiceDaoImpl = new BankServiceDAOImpl();
 		try {
 			List<Transaction> listOfTransactions = bankServiceDaoImpl.viewTransactionTable();
-			if (listOfTransactions != null && listOfTransactions.size() > 0) {
+			if(listOfTransactions != null && listOfTransactions.size()>0) {
 				for (Transaction transaction : listOfTransactions) {
-					log.info(transaction);
+				log.info(transaction);
 				}
-			} else
+			}else
 				log.warn("No transaction found!");
 		} catch (BusinessException e) {
 			e.printStackTrace();
 		}
-
+		
+		
 	}
 } // end class

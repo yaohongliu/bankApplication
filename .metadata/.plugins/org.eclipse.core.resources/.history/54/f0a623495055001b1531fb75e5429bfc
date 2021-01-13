@@ -136,29 +136,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		}
 		return balance;
 	}
-	
-	@Override
-	public double getBalanceByAccountId(int accountId) throws BusinessException {
-		double balance;
-
-		try (Connection connection = PostgresqlConnection.getConnection()) {
-			String sql = "select balance from bankapplication.t_account where account_id = ?;";
-
-			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setInt(1, accountId);
-			ResultSet resultSet = ps.executeQuery();
-
-			if (resultSet.next()) {
-				balance = resultSet.getDouble("balance");
-			} else {
-				throw new BusinessException("No account found with this ID: " + accountId);
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			throw new BusinessException("Internal error occured contact SYSADMIN ");
-		}
-		return balance;
-	}
-	
 
 	@Override
 	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
@@ -339,7 +316,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				transaction.setToAccount(resultSet.getInt("to_account"));
 				transaction.setAmount(resultSet.getDouble("amount"));
 				transaction.setTime(resultSet.getDate("transaction_time"));
-				transaction.setApproved(resultSet.getString("approved"));
 				transactionList.add(transaction);
 			}
 			if (transactionList.size() == 0) {
@@ -352,29 +328,12 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	}
 	
 	@Override
-	public void approveTransfer(Transaction transaction) throws BusinessException {
-		String approveSql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";
-		String transferSql = "update bankapplication.t_account set balance = ? where account_id = ?;";
-		
+	public void approveTransfer(int transactionId) throws BusinessException {
+		String sql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";
 		try (Connection connection = PostgresqlConnection.getConnection()) {
-			log.info("approving transaction....");
-			PreparedStatement ps_approve = connection.prepareStatement(approveSql);
-			ps_approve.setInt(1, transaction.getTransactionId());
-			ps_approve.executeUpdate();
-			log.info("getting your balance.....");
-			//get balance
-			double balance = this.getBalanceByAccountId(transaction.getToAccount());
-			log.info("Your old balance: " + balance);
-			balance = transaction.getAmount() + balance; //new balance value
-			log.info("Your new balance will be: " + balance);
-			log.info("adding funds to account");
-			// add funds to receiving account
-			// funds are automatically subtracted from sender when they transfer 
-			PreparedStatement ps_transfer = connection.prepareStatement(transferSql);
-			ps_transfer.setDouble(1, balance);  // add transfer amount to receiving acct balance
-			ps_transfer.setInt(2, transaction.getToAccount());
-			ps_transfer.executeUpdate();
-			
+			PreparedStatement ps = connection.prepareStatement(sql);
+			ps.setInt(1, transactionId);
+			ps.execute();
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");
 		}

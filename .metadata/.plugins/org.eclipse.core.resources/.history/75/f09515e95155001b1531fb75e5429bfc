@@ -339,7 +339,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				transaction.setToAccount(resultSet.getInt("to_account"));
 				transaction.setAmount(resultSet.getDouble("amount"));
 				transaction.setTime(resultSet.getDate("transaction_time"));
-				transaction.setApproved(resultSet.getString("approved"));
 				transactionList.add(transaction);
 			}
 			if (transactionList.size() == 0) {
@@ -355,25 +354,18 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 	public void approveTransfer(Transaction transaction) throws BusinessException {
 		String approveSql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";
 		String transferSql = "update bankapplication.t_account set balance = ? where account_id = ?;";
-		
 		try (Connection connection = PostgresqlConnection.getConnection()) {
-			log.info("approving transaction....");
 			PreparedStatement ps_approve = connection.prepareStatement(approveSql);
 			ps_approve.setInt(1, transaction.getTransactionId());
-			ps_approve.executeUpdate();
-			log.info("getting your balance.....");
+			ps_approve.execute();
+			
 			//get balance
 			double balance = this.getBalanceByAccountId(transaction.getToAccount());
-			log.info("Your old balance: " + balance);
-			balance = transaction.getAmount() + balance; //new balance value
-			log.info("Your new balance will be: " + balance);
-			log.info("adding funds to account");
-			// add funds to receiving account
-			// funds are automatically subtracted from sender when they transfer 
+			
 			PreparedStatement ps_transfer = connection.prepareStatement(transferSql);
-			ps_transfer.setDouble(1, balance);  // add transfer amount to receiving acct balance
+			ps_transfer.setDouble(1, transaction.getAmount() + balance);  // add transfer amount to receiving acct balance
 			ps_transfer.setInt(2, transaction.getToAccount());
-			ps_transfer.executeUpdate();
+			ps_transfer.execute();
 			
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");

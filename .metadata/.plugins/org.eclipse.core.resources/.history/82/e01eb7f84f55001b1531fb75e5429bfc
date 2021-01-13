@@ -6,7 +6,6 @@ public class Transaction {
 
 	private int fromAccount, toAccount, transactionId;
 	private double amount;
-	private String approved;
 	private Date time;
 
 	public Transaction() {
@@ -61,14 +60,6 @@ public class Transaction {
 
 	public void setTime(Date time) {
 		this.time = time;
-	}
-	
-	public String getApproved() {
-		return approved;
-	}
-
-	public void setApproved(String approved) {
-		this.approved = approved;
 	}
 
 	@Override

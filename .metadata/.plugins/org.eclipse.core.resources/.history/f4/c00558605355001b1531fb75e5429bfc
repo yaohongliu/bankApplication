@@ -138,7 +138,7 @@ public class BankServicesMain {
 					System.out.println("Approve above transfer (Y/n)?");
 					String choice = sc.nextLine();
 					
-					if (choice.equals("Y")) {
+					if (choice == "Y") {
 						bankServiceDaoImpl.approveTransfer(transaction);
 					}
 				}
@@ -146,6 +146,13 @@ public class BankServicesMain {
 		} catch (BusinessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+
+		System.out.println("Continue processing transfers (Y/n)?");
+		String choice = sc.nextLine();
+
+		if (!choice.equals("Y")) {
+			continueApprovingTransfers = false;
 		}
 	}
 

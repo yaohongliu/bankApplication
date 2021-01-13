@@ -30,9 +30,5 @@ public interface BankServiceDAO {
 	public List<Transaction> viewTransactionTable() throws BusinessException;
 	
 	public void approveAccount(int customerId) throws BusinessException;
-	
-	public void approveTransfer(Transaction transaction) throws BusinessException;
-	
-	public double getBalanceByAccountId(int accountId) throws BusinessException;
 
 }

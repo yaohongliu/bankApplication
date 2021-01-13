@@ -80,9 +80,9 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			n = acctPreparedStatement.executeUpdate();
 
 			Date date = new Date();
-			String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time, approved) "
+			String trans_sql = "insert into bankapplication.t_transaction (transaction_id, from_account, to_account, amount, transaction_time) "
 					+ "values (default, (select max(t_account.account_id) from bankapplication.t_account), "
-					+ "(select max(t_account.account_id) from bankapplication.t_account), ?, ?::date, false);";
+					+ "(select max(t_account.account_id) from bankapplication.t_account), ?, ?::date);";
 			PreparedStatement transactionPreparedStatement = connection.prepareStatement(trans_sql);
 			transactionPreparedStatement.setDouble(1, customer.getBalance());
 			transactionPreparedStatement.setString(2, date.toString());
@@ -136,29 +136,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		}
 		return balance;
 	}
-	
-	@Override
-	public double getBalanceByAccountId(int accountId) throws BusinessException {
-		double balance;
-
-		try (Connection connection = PostgresqlConnection.getConnection()) {
-			String sql = "select balance from bankapplication.t_account where account_id = ?;";
-
-			PreparedStatement ps = connection.prepareStatement(sql);
-			ps.setInt(1, accountId);
-			ResultSet resultSet = ps.executeQuery();
-
-			if (resultSet.next()) {
-				balance = resultSet.getDouble("balance");
-			} else {
-				throw new BusinessException("No account found with this ID: " + accountId);
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			throw new BusinessException("Internal error occured contact SYSADMIN ");
-		}
-		return balance;
-	}
-	
 
 	@Override
 	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
@@ -232,6 +209,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		} catch (ClassNotFoundException | SQLException e) {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");
 		}
+		
 	}
 
 	/**
@@ -324,7 +302,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 
 		return employee;
 	}
-	
 	@Override
 	public List<Transaction> viewTransactionTable() throws BusinessException{
 		List<Transaction> transactionList = new ArrayList<>();
@@ -339,7 +316,6 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				transaction.setToAccount(resultSet.getInt("to_account"));
 				transaction.setAmount(resultSet.getDouble("amount"));
 				transaction.setTime(resultSet.getDate("transaction_time"));
-				transaction.setApproved(resultSet.getString("approved"));
 				transactionList.add(transaction);
 			}
 			if (transactionList.size() == 0) {
@@ -349,35 +325,8 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 			throw new BusinessException("Internal error occured contact SYSADMIN ");
 		}
 		return transactionList;
-	}
-	
-	@Override
-	public void approveTransfer(Transaction transaction) throws BusinessException {
-		String approveSql = "update bankapplication.t_transaction set approved = true where transaction_id = ?;";
-		String transferSql = "update bankapplication.t_account set balance = ? where account_id = ?;";
 		
-		try (Connection connection = PostgresqlConnection.getConnection()) {
-			log.info("approving transaction....");
-			PreparedStatement ps_approve = connection.prepareStatement(approveSql);
-			ps_approve.setInt(1, transaction.getTransactionId());
-			ps_approve.executeUpdate();
-			log.info("getting your balance.....");
-			//get balance
-			double balance = this.getBalanceByAccountId(transaction.getToAccount());
-			log.info("Your old balance: " + balance);
-			balance = transaction.getAmount() + balance; //new balance value
-			log.info("Your new balance will be: " + balance);
-			log.info("adding funds to account");
-			// add funds to receiving account
-			// funds are automatically subtracted from sender when they transfer 
-			PreparedStatement ps_transfer = connection.prepareStatement(transferSql);
-			ps_transfer.setDouble(1, balance);  // add transfer amount to receiving acct balance
-			ps_transfer.setInt(2, transaction.getToAccount());
-			ps_transfer.executeUpdate();
-			
-		} catch (ClassNotFoundException | SQLException e) {
-			throw new BusinessException("Internal error occured contact SYSADMIN ");
-		}
+		
 	}
 
 }
