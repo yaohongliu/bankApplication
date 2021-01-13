@@ -15,14 +15,16 @@
     <fullyQualifiedTypeName name="java.sql.SQLException"/>
     <fullyQualifiedTypeName name="com.bank.model.Employee"/>
     <fullyQualifiedTypeName name="com.bank.model.Transaction"/>
-    <fullyQualifiedTypeName name="com.bank.service.BankServices"/>
     <fullyQualifiedTypeName name="com.bank.service.impl.CustomerServiceImpl"/>
     <fullyQualifiedTypeName name="com.bank.model.Account"/>
-    <fullyQualifiedTypeName name="com.bank.service.dao.BankServiceDAO"/>
     <fullyQualifiedTypeName name="java.text.SimpleDateFormat"/>
     <fullyQualifiedTypeName name="java.text.DateFormat"/>
-    <fullyQualifiedTypeName name="com.bank.service.dao.impl.BankServiceDAOImpl"/>
     <fullyQualifiedTypeName name="com.bank.model.CustomerAccount"/>
     <fullyQualifiedTypeName name="java.util.Date"/>
     <fullyQualifiedTypeName name="java.sql.Date"/>
+    <fullyQualifiedTypeName name="com.bank.service.BankServices"/>
+    <fullyQualifiedTypeName name="com.bank.service.dao.BankServiceDAO"/>
+    <fullyQualifiedTypeName name="com.bank.service.dao.impl.BankServiceDAOImpl"/>
+    <fullyQualifiedTypeName name="java.util.regex.Pattern"/>
+    <fullyQualifiedTypeName name="java.util.regex.Matcher"/>
 </qualifiedTypeNameHistroy>

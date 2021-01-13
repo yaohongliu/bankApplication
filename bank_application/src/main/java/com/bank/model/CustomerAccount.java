@@ -88,14 +88,15 @@ public class CustomerAccount {
 
 	@Override
 	public String toString() {
-		return "Customer " + name + " has balance $" + balance + " in account";
+		 return "Customer "+customerId+" Name: "+name+", acount ID: "+accountId+", balance: "+balance;
 	}
 	
 	/**
 	 * Print detailed info about the customer
 	 * @return
 	 */
-	public String detailedString() {
-		return "Customer "+customerId+" Name: "+name+", acount ID: "+accountId+", balance: "+balance;
+	public String showBalance() {
+		
+		return "Customer " + name + " has balance $" + balance + " in account";
 	}
 }

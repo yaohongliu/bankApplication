@@ -1,0 +1,62 @@
+package com.bank.service.impl;
+
+import java.util.List;
+
+import com.bank.exception.BusinessException;
+import com.bank.model.CustomerAccount;
+import com.bank.service.BankServices;
+import com.bank.service.dao.BankServiceDAO;
+import com.bank.service.dao.impl.BankServiceDAOImpl;
+
+public class BankServicesImpl implements BankServices{
+
+	private BankServiceDAO bankServiceDAO = new BankServiceDAOImpl();
+	
+	@Override
+	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
+		List<CustomerAccount> allCustomerAccount = null;
+		allCustomerAccount = bankServiceDAO.getAllCustomerInfo();
+		
+		return allCustomerAccount;
+	}
+
+	@Override
+	public CustomerAccount getCustomerByEmail(String email) throws BusinessException {
+
+
+		CustomerAccount customerAccount = null;
+		if(email != null&& email.matches("[a-zA-Z]{0,20}@[a-zA-Z]{0-10}.com")) {
+			customerAccount = bankServiceDAO.getCustomerByEmail(email);
+			}else {
+				throw new BusinessException("Enter Player teamname "+email+" is Invalid");
+			}
+		return customerAccount;
+		
+	}
+
+	@Override
+	public int createAccount(CustomerAccount customer) throws BusinessException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public CustomerAccount getBalanceByEmail(String email) throws BusinessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deposit(double amount, CustomerAccount customer) throws BusinessException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void withdraw(double amount, String email) throws BusinessException {
+		// TODO Auto-generated method stub
+		
+	}
+	
+
+}

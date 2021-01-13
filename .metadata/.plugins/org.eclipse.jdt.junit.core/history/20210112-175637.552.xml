@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="BankServicesMainTest" project="bank_application" tests="4" started="4" failures="0" errors="0" ignored="0">
+  <testsuite name="com.bank.main.BankServicesMainTest" time="0.209" displayname="BankServicesMainTest" uniqueid="[engine:junit-jupiter]/[class:com.bank.main.BankServicesMainTest]">
+    <testcase name="isBalancePositiveTest_True" classname="com.bank.main.BankServicesMainTest" time="0.182" displayname="isBalancePositiveTest_True()" uniqueid="[engine:junit-jupiter]/[class:com.bank.main.BankServicesMainTest]/[method:isBalancePositiveTest_True()]"/>
+    <testcase name="isValidDobTest_False" classname="com.bank.main.BankServicesMainTest" time="0.006" displayname="isValidDobTest_False()" uniqueid="[engine:junit-jupiter]/[class:com.bank.main.BankServicesMainTest]/[method:isValidDobTest_False()]"/>
+    <testcase name="isValidDobTest_True" classname="com.bank.main.BankServicesMainTest" time="0.003" displayname="isValidDobTest_True()" uniqueid="[engine:junit-jupiter]/[class:com.bank.main.BankServicesMainTest]/[method:isValidDobTest_True()]"/>
+    <testcase name="isBalancePositiveTest_False" classname="com.bank.main.BankServicesMainTest" time="0.018" displayname="isBalancePositiveTest_False()" uniqueid="[engine:junit-jupiter]/[class:com.bank.main.BankServicesMainTest]/[method:isBalancePositiveTest_False()]"/>
+  </testsuite>
+</testrun>

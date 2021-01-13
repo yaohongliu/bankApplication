@@ -1,0 +1,21 @@
+package com.bank.main; 
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Scanner;
+
+class BankServiceMainTest {
+	Scanner sc;
+	
+	@BeforeEach
+	void setUp() {
+		sc = new Scanner(System.in);
+	}
+	
+	@Test
+	
+}

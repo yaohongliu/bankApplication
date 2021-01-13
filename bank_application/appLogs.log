@@ -1,0 +1,10 @@
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 16:36:18
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 16:36:18
+{WARN}   com.bank.main.BankServicesMain     Balance cannot be negative, enter positive value!    12-Jan-2021 Tuesday CST 16:44:05
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 16:44:20
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 16:44:20
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 18:35:02
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 18:35:03
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Attempting to connect to Postgres DB......    12-Jan-2021 Tuesday CST 18:35:29
+{INFO}   com.bank.dao.dbutil.PostgresqlConnection     Successfully connected to DB! :)     12-Jan-2021 Tuesday CST 18:35:30
+{WARN}   com.bank.main.BankServicesMain     Your account does not have enough balance to withdraw!    12-Jan-2021 Tuesday CST 18:35:30

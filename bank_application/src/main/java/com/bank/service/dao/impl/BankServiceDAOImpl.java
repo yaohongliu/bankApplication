@@ -11,15 +11,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.bank.dao.dbutil.PostgresqlConnection;
 import com.bank.exception.BusinessException;
+import com.bank.main.BankServicesMain;
 import com.bank.model.CustomerAccount;
 import com.bank.model.Employee;
 import com.bank.model.Transaction;
 import com.bank.service.dao.BankServiceDAO;
 
+
 public class BankServiceDAOImpl implements BankServiceDAO {
 
+	private static Logger log = Logger.getLogger(BankServicesMain.class);
+	
 	@Override
 	public List<CustomerAccount> getAllCustomerInfo() throws BusinessException {
 		List<CustomerAccount> customerList = new ArrayList<>();
@@ -193,6 +199,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				account.setName(resultSet.getString("customer_name"));
 				account.setApproved(resultSet.getString("approved"));
 			} else {
+				log.warn("Wrong username or password!");
 				throw new BusinessException("No account found with this username and password!");
 			}
 		} catch (ClassNotFoundException | SQLException e) {
@@ -207,7 +214,7 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 		CustomerAccount account = getCustomerByEmail(email);
 		System.out.println("Customer id: " + account.getCustomerId());
 		System.out.println("Status: " + account.getApproved());
-		if (account.getApproved().equals("t")) {
+		if (account.getApproved().equals("t")&& account.getBalance()>= amount) {
 			String sql = "update bankapplication.t_account set balance = ? where customer_id = ?;";
 			try (Connection connection = PostgresqlConnection.getConnection()) {
 				PreparedStatement ps = connection.prepareStatement(sql);
@@ -219,7 +226,8 @@ public class BankServiceDAOImpl implements BankServiceDAO {
 				throw new BusinessException("Internal error occured contact SYSADMIN ");
 			}
 		} else {
-			throw new BusinessException("Your account is not yet approved!");
+			log.warn("Your account does not have enough balance to withdraw!");
+			throw new BusinessException("Your account is not yet approved!\n Transaction rejected: No enough Balance");
 		}
 
 	}

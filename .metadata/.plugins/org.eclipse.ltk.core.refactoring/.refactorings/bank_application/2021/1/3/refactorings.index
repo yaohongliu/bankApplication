@@ -13,3 +13,11 @@
 1610337185239	Extract method 'createAccount'
 1610422849629	Delete element
 1610423081525	Extract method 'displayMenu'
+1610424931084	Extract method 'viewAccount'
+1610425209248	Extract method 'withdraw'
+1610425249471	Extract method 'deposit'
+1610425304535	Extract method 'viewBalance'
+1610491712981	Extract method 'obtainPositiveBalance'
+1610491751084	Extract method 'obtainValidPassword'
+1610492844396	Delete elements
+1610497666258	Extract method 'displayEmployeeMenu'
